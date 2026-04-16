@@ -1,0 +1,95 @@
+.pref-dropdown-container {
+  position: relative;
+  z-index: 50;
+}
+
+.pref-active-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.pref-active-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-primary);
+}
+
+.pref-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.pref-arrow {
+  transition: transform 0.2s ease;
+}
+.pref-arrow.open {
+  transform: rotate(180deg);
+}
+
+.pref-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px var(--shadow-medium);
+  overflow: hidden;
+  animation: slideDown 0.2s ease forwards;
+}
+
+.pref-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.pref-menu-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.pref-menu-item.selected {
+  background: rgba(74, 107, 124, 0.05);
+}
+
+.pref-text {
+  flex: 1;
+}
+
+.pref-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.pref-desc {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.pref-check {
+  color: var(--accent-primary);
+  font-weight: bold;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

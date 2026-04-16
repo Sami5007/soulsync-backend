@@ -1,0 +1,16 @@
+# Explicit paths to folders
+soulsync-backend/venv/
+soulsync-backend/.env
+soulsync-frontend/node_modules/
+
+# General patterns
+**/venv/
+**/node_modules/
+**/__pycache__/
+*.pyc
+*.bin
+*.safetensors
+crisis_temp.db
+crisis_log.json
+.env
+.env.local

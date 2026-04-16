@@ -1,0 +1,166 @@
+.crisis-alert {
+  position: fixed;
+  bottom: 110px;
+  right: 2rem;
+  max-width: 420px;
+  background: var(--bg-secondary);
+  border: 2px solid #f59e0b;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 12px 40px rgba(245,158,11,0.25);
+  animation: crisisSlideIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(30px) scale(0.9);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Critical severity gets red styling instead of amber */
+.crisis-alert.severity-critical {
+  border-color: #ef4444;
+  box-shadow: 0 12px 40px rgba(239,68,68,0.25);
+}
+
+.crisis-alert.severity-critical .crisis-alert-icon {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.crisis-alert.severity-critical .crisis-alert-header {
+  color: #b91c1c;
+}
+
+[data-theme="dark"] .crisis-alert.severity-critical .crisis-alert-header {
+  color: #f87171;
+}
+
+@keyframes crisisSlideIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.crisis-alert-icon {
+  flex-shrink: 0;
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50%      { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+}
+
+.crisis-alert-content {
+  flex: 1;
+}
+
+.crisis-alert-header {
+  font-weight: 700;
+  color: #d97706;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+[data-theme="dark"] .crisis-alert-header {
+  color: #fbbf24;
+}
+
+.crisis-alert-body {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+}
+
+/* ── Helpline Buttons ── */
+.crisis-helplines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.helpline-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+
+.helpline-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.95);
+}
+
+.helpline-button.primary {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  color: #b45309;
+}
+
+.helpline-button.emergency {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+}
+
+[data-theme="dark"] .helpline-button.primary {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .helpline-button.emergency {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.helpline-icon {
+  font-size: 1.5rem;
+}
+
+.helpline-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.helpline-text strong {
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.helpline-text span {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* ── Actions ── */
+.crisis-actions {
+  text-align: right;
+}
+
+.crisis-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.crisis-dismiss:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}

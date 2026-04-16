@@ -1,0 +1,124 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.preference-card {
+  background: white;
+  border-radius: 28px;
+  padding: 2.5rem;
+  width: 90%;
+  max-width: 540px;
+  color: #1e293b;
+  text-align: left;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalScaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.close-x {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.modal-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; color: #0f172a; }
+.modal-subtitle { font-size: 0.95rem; color: #64748b; margin-bottom: 2rem; line-height: 1.5; }
+
+.pref-card-item {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border: 2px solid #f1f5f9;
+  border-radius: 20px;
+  margin-bottom: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pref-card-item:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+.pref-card-item.active {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.1);
+}
+
+.pref-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.pref-info { flex: 1; display: flex; flex-direction: column; }
+.pref-info strong { font-size: 1.1rem; color: #1e293b; margin-bottom: 4px; }
+.pref-info span { font-size: 0.85rem; color: #64748b; line-height: 1.4; }
+
+.radio-circle {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pref-card-item.active .radio-circle { border-color: #38bdf8; }
+.pref-card-item.active .radio-circle::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background: #38bdf8;
+  border-radius: 50%;
+}
+
+.modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+
+.btn-cancel {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.btn-continue {
+  flex: 2;
+  padding: 1rem;
+  border-radius: 14px;
+  border: none;
+  background: #4fd1c5; /* Cyan matching your screenshot */
+  color: #003e3e;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-continue:hover { transform: translateY(-2px); filter: brightness(1.05); }

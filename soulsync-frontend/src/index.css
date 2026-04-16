@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Dynamic Background for Glassmorphism */
+  --bg-main: radial-gradient(circle at 20% 20%, #16213e 0%, #050814 100%);
+  
+  /* Glass Colors */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(25px);
+  
+  /* Text & Accents */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-primary: #00d2ff;
+  --accent-secondary: #3a7bd5;
+  --accent-glow: rgba(0, 210, 255, 0.4);
+}
+
+/* We'll focus on the dark theme to match your screenshot */
+[data-theme="dark"] {
+  --bg-primary: #050814;
+  --bg-secondary: rgba(255, 255, 255, 0.03); /* Glass base */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-main);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  overflow: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Glassmorphism Utility ── */
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* ── Custom Particles (Vibrant Glow) ── */
+.particle {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  box-shadow: 0 0 10px var(--accent-primary);
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  50%  { opacity: 0.5; }
+  100% { transform: translateY(-10vh) translateX(40px) scale(2); opacity: 0; }
+}
+
+/* ── Islamic Mode Enhancement ── */
+body.islamic-mode::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  /* Deep emerald and gold atmospheric glows */
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(5, 150, 105, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(217, 119, 6, 0.1) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Global Transitions ── */
+@keyframes messageFloat {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+button:active {
+  transform: scale(0.95);
+}

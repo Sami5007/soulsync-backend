@@ -1,0 +1,112 @@
+/* ── GLASS FLOATING INPUT CONTAINER ── */
+.input-container {
+  padding: 1.5rem 2rem;
+  background: transparent; /* Removed solid background to show the nebula */
+  border: none; /* Removed the top border line */
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-end; /* Aligns button with bottom of expanding textarea */
+  max-width: 900px;
+  margin: 0 auto; /* Centers the input pill */
+  width: 100%;
+  position: relative;
+  z-index: 20;
+}
+
+.input-wrapper { 
+  flex: 1; 
+  position: relative; 
+  background: rgba(255, 255, 255, 0.04); /* Subtle glass tint */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px; /* Smooth pill shape */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.input-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(0, 210, 255, 0.5); /* Glow effect on focus */
+  box-shadow: 0 8px 32px 0 rgba(0, 210, 255, 0.15);
+}
+
+.message-input {
+  width: 100%;
+  padding: 1.2rem 1.75rem;
+  border: none;
+  background: transparent;
+  color: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  outline: none;
+  resize: none;
+  max-height: 150px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.message-input::placeholder { 
+  color: rgba(255, 255, 255, 0.3); 
+}
+
+/* ── FLOATING SEND BUTTON (VIBRANT GLOW) ── */
+.send-button {
+  width: 54px; 
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); /* Signature Blue Gradient */
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.send-button:hover:not(:disabled) {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 210, 255, 0.6);
+}
+
+.send-button:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ── SRS CHARACTER COUNTER (GLASS STYLE) ── */
+.char-counter {
+  position: absolute;
+  top: -30px; /* Floats above the input pill */
+  right: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 10px;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+}
+
+.char-counter.warning {
+  color: #fb7185;
+  background: rgba(225, 29, 72, 0.1);
+  animation: counterPulse 1s ease-in-out infinite;
+}
+
+@keyframes counterPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@media (max-width: 768px) {
+  .input-container { padding: 1rem; }
+  .message-input { padding: 0.8rem 1.25rem; }
+  .send-button { width: 48px; height: 48px; }
+}
