@@ -45,7 +45,7 @@
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
   --text-primary: #f8fafc;
-  --text-secondary: #000000;
+  --text-secondary: #cbd5e1;
   --text-tertiary: #94a3b8;
   --accent-primary: #38bdf8;
   --accent-secondary: #0284c7;
@@ -304,8 +304,8 @@ body {
 .hero-title-accent {
   background: linear-gradient(90deg, var(--cyan), var(--cyan-light));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit--fill-color: transparent;
+  background-clip: ;
 }
  
 .hero-desc {
@@ -1010,4 +1010,13 @@ body {
   .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
   .landing-footer { padding: 24px 16px 20px; }
   .delete-session-btn { opacity: 1; }
+}
+.message-input input,
+.message-input textarea {
+  color: #000000;
+}
+
+[data-theme="dark"] .message-input input,
+[data-theme="dark"] .message-input textarea {
+  color: #ffffff;
 }
