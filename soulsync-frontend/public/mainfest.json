@@ -1,0 +1,24 @@
+{
+  "name": "Soul-Sync - Mental Wellness Companion",
+  "short_name": "Soul-Sync",
+  "description": "AI-Powered Mental Wellness Support",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1628",
+  "theme_color": "#00e5ff",
+  "icons": [
+    {
+      "src": "/Logo-soulsync.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Logo-soulsync.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
