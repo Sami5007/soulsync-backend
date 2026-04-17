@@ -1020,3 +1020,92 @@ body {
 [data-theme="dark"] .message-input textarea {
   color: #ffffff;
 }
+/* ── Extra small phones (below 380px like iPhone SE) ── */
+@media (max-width: 380px) {
+  .hero-title {
+    font-size: 26px;
+  }
+
+  .hero-desc {
+    font-size: 13px;
+  }
+
+  .hero-logo {
+    width: 70px;
+    height: 70px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .logo-title {
+    font-size: 0.95rem;
+  }
+
+  .logo-tagline {
+    display: none;
+  }
+
+  .nav-cta {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+}
+/* ── FIX: Preference modal on mobile ── */
+@media (max-width: 768px) {
+  .preference-overlay {
+    padding: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+
+  .preference-modal {
+    max-height: none;
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .preference-option {
+    padding: 14px 12px;
+    margin-bottom: 10px;
+  }
+
+  .preference-option h3,
+  .preference-option h4 {
+    font-size: 16px;
+  }
+
+  .preference-option p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .preference-modal h2 {
+    font-size: 20px;
+  }
+
+  .preference-modal p {
+    font-size: 13px;
+  }
+}
+/* ── FIX: Make preference modal scrollable on mobile ── */
+@media (max-width: 768px) {
+  .welcome-screen,
+  .preference-overlay {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px 16px;
+  }
+}
