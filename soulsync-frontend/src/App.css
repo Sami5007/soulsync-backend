@@ -1109,3 +1109,26 @@ body {
     padding: 20px 16px;
   }
 }
+@media (max-width: 768px) {
+  .input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    z-index: 50;
+  }
+
+  .main-content {
+    padding-bottom: 80px;
+  }
+
+  .landing-footer {
+    padding: 24px 16px 40px;
+  }
+
+  .footer-disclaimer {
+    padding-bottom: 20px;
+  }
+}
