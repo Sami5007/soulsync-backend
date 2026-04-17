@@ -10,7 +10,7 @@
 :root {
   --landing-bg: #0a1628;
   --landing-bg-mid: #0f2135;
-  --landing-bg-teal: #132d3e;
+  --landing-bg-teal: #132d3e:
   --cyan: #00e5ff;
   --cyan-light: #67ffff;
   --cyan-dark: #00b8d4;
