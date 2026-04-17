@@ -59,18 +59,19 @@ logger.info(f"LLM Client ready — model: {GROK_MODEL}")
 
 # --- CRISIS EMAIL SENDER ---
 def send_crisis_email(user_message, severity, emotion, history):
-    SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-    SENDER_PASSWORD = os.getenv("SENDER_PASSWORD")
-    COUNSELOR_EMAIL = os.getenv("COUNSELOR_EMAIL")
-
-    if not SENDER_EMAIL or not SENDER_PASSWORD or not COUNSELOR_EMAIL:
-        logger.warning("Email credentials missing in .env file. Crisis email skipped.")
+    # 1. Grab the key
+    WEB3FORMS_KEY = os.getenv("WEB3FORMS_KEY")
+    COUNSELOR_EMAIL = os.getenv("COUNSELOR_EMAIL") 
+    
+    if not WEB3FORMS_KEY:
+        logger.warning("Web3Forms key missing in secrets. Crisis email skipped.")
         return
 
-    try:
-        history_text = "\n".join([f"{msg.get('sender', 'Unknown').capitalize()}: {msg.get('text', '')}" for msg in history[-5:]]) if history else "No previous context."
+    # 2. Extract recent history
+    history_text = "\n".join([f"{msg.get('sender', 'Unknown').capitalize()}: {msg.get('text', '')}" for msg in history[-5:]]) if history else "No previous context."
 
-        email_body = f"""
+    # 3. Build email body
+    email_body = f"""
 URGENT: Soul-Sync Crisis Alert
 
 Message: "{user_message}"
@@ -81,21 +82,27 @@ Recent Conversation Context:
 {history_text}
 
 Please review and intervene if necessary.
-        """
+"""
 
-        msg = MIMEText(email_body)
-        msg['Subject'] = f'URGENT: Soul-Sync Critical Alert ({severity.upper()})'
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = COUNSELOR_EMAIL
+    # 4. The Web3Forms Payload (Bypasses the Port 587 block)
+    payload = {
+        "access_key": WEB3FORMS_KEY,
+        "subject": f"URGENT: Soul-Sync Critical Alert ({severity.upper()})",
+        "from_name": "SoulSync AI Bot",
+        "email": "noreply@soulsync.com", 
+        "message": email_body
+    }
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        logger.info(f"Crisis email sent to {COUNSELOR_EMAIL}")
+    try:
+        # 5. Send the web request over standard port 443
+        response = requests.post("https://api.web3forms.com/submit", json=payload)
+        
+        if response.status_code == 200:
+            logger.info(f"Crisis email sent to {COUNSELOR_EMAIL or 'counselor via Web3Forms'}")
+        else:
+            logger.error(f"Failed to send email. API Response: {response.text}")
     except Exception as e:
-        logger.error(f"Failed to send crisis email: {str(e)}")
+        logger.error(f"Error triggering email API: {str(e)}")
 
 def map_to_srs_emotions(detected_emotion):
     mapping = {
