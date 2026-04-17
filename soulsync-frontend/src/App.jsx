@@ -386,12 +386,10 @@ export default function App() {
 const handleSendMessage = async (text) => {
     if (isSending || !activeSessionId) return;
     setIsSending(true);
-
     const userMsg = { id: Date.now(), type: 'user', text };
     setSessions(prev => prev.map(s => 
       s.id === activeSessionId ? { ...s, messages: [...s.messages, userMsg] } : s
     ));
-
     try {
       const response = await api.chat(text, activeSessionId, preference, []);
       const botMsg = { 
@@ -404,8 +402,6 @@ const handleSendMessage = async (text) => {
       setSessions(prev => prev.map(s => 
         s.id === activeSessionId ? { ...s, messages: [...s.messages, botMsg] } : s
       ));
-
-      // Send crisis email if crisis detected
       if (response.crisis && response.crisis.is_crisis) {
         sendCrisisEmail(
           text,
@@ -413,8 +409,8 @@ const handleSendMessage = async (text) => {
           response.emotion,
           messages
         );
+        setCrisisAlert(response.crisis);
       }
-
     } catch (e) {
       console.error("Chat error:", e);
     } finally {
