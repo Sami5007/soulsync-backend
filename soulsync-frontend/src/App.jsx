@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatContainer } from './components/ChatContainer';
 import { MessageInput } from './components/MessageInput';
+import { sendCrisisEmail } from './services/crisisEmail';
 import { CrisisAlert } from './components/CrisisAlert';
 import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
@@ -393,12 +394,6 @@ const handleSendMessage = async (text) => {
 
     try {
       const response = await api.chat(text, activeSessionId, preference, []);
-      
-      // 🔴 THE MISSING PIECE: Check for crisis and update the state!
-      if (response.crisis && response.crisis.is_crisis) {
-        setCrisisAlert(response.crisis);
-      }
-
       const botMsg = { 
         id: Date.now() + 1, 
         type: 'bot', 
@@ -406,10 +401,20 @@ const handleSendMessage = async (text) => {
         emotion: response.emotion,
         shap_values: response.shap_values 
       };
-      
       setSessions(prev => prev.map(s => 
         s.id === activeSessionId ? { ...s, messages: [...s.messages, botMsg] } : s
       ));
+
+      // Send crisis email if crisis detected
+      if (response.crisis && response.crisis.is_crisis) {
+        sendCrisisEmail(
+          text,
+          response.crisis.severity,
+          response.emotion,
+          messages
+        );
+      }
+
     } catch (e) {
       console.error("Chat error:", e);
     } finally {
