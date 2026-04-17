@@ -412,13 +412,7 @@ def chat():
             logger.error(f"SHAP Error: {str(e)}")
             top_shap_words = []
 
-        if crisis_result["is_crisis"]:
-            if crisis_result["severity"] in ["critical", "high"]:
-                email_thread = threading.Thread(
-                    target=send_crisis_email,
-                    args=(message, crisis_result["severity"], emotion, conversation_history)
-                )
-                email_thread.start()
+if crisis_result["is_crisis"]:
             response_text = get_crisis_response(crisis_result["severity"])
         else:
             response_text = get_grok_response(
