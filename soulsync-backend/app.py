@@ -13,10 +13,6 @@ from datetime import datetime
 import logging
 from dotenv import load_dotenv
 
-# IMPORTS FOR CRISIS EMAIL
-import smtplib
-from email.mime.text import MIMEText
-import threading
 
 load_dotenv()
 
