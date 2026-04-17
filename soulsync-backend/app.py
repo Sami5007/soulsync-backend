@@ -24,7 +24,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+# This tells Flask to let Vercel talk to it!
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 print("Loading Lightweight Emotion model...")
 EMOTION_MODEL_NAME = "j-hartmann/emotion-english-distilroberta-base"
