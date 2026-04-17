@@ -5,7 +5,7 @@ export async function sendCrisisEmail(message, severity, emotion, history) {
     .join('\n');
 
   const payload = {
-    access_key: "YOUR_WEB3FORMS_KEY_HERE",
+    access_key: "ea2198c1-442c-41e0-9fd2-68d6966b76f3",
     subject: `🚨 URGENT: Soul-Sync Crisis Alert (${severity.toUpperCase()})`,
     from_name: "SoulSync Crisis System",
     email: "soulsync.alerts@gmail.com",
