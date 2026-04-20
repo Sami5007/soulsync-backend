@@ -10,14 +10,12 @@ export const api = {
     if (!response.ok) throw new Error('Backend not responding');
     return response.json();
   },
-
   // Get app info
   info: async () => {
     const response = await fetch(`${API_BASE_URL}/info`);
     if (!response.ok) throw new Error('Could not fetch app info');
     return response.json();
   },
-
   // Start a new session
   startSession: async (preference = 'hybrid') => {
     const response = await fetch(`${API_BASE_URL}/session/start`, {
@@ -28,16 +26,15 @@ export const api = {
     if (!response.ok) throw new Error('Could not start session');
     return response.json();
   },
-
   // Get session info
   getSession: async (sessionId) => {
     const response = await fetch(`${API_BASE_URL}/session/${sessionId}`);
     if (!response.ok) throw new Error('Session not found');
     return response.json();
   },
-
   // Send chat message — returns raw backend response, no transformation
-  chat: async (message, sessionId, preference = 'hybrid') => {
+  // ✅ NOW ACCEPTS history (4th arg) so the bot remembers previous turns
+  chat: async (message, sessionId, preference = 'hybrid', history = []) => {
     const response = await fetch(`${API_BASE_URL}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -45,6 +42,7 @@ export const api = {
         message,
         session_id: sessionId,
         preference,
+        history,   // ✅ pass full conversation array — fixes the "bot forgets" bug
       }),
     });
     if (!response.ok) throw new Error('Chat request failed');
@@ -52,7 +50,6 @@ export const api = {
     // Backend returns: { emotion, confidence, response, crisis, ... }
     return response.json();
   },
-
   // Detect emotion only
   detectEmotion: async (message) => {
     const response = await fetch(`${API_BASE_URL}/emotion/detect`, {
@@ -63,7 +60,6 @@ export const api = {
     if (!response.ok) throw new Error('Emotion detection failed');
     return response.json();
   },
-
   // Get crisis resources
   getCrisisResources: async () => {
     const response = await fetch(`${API_BASE_URL}/crisis/resources`);
