@@ -383,31 +383,54 @@ export default function App() {
     }
   };
  
-const handleSendMessage = async (text) => {
+  // ✅ FIXED: Now passes the actual conversation history to the backend
+  // so the bot remembers prior turns instead of treating each message as new.
+  const handleSendMessage = async (text) => {
     if (isSending || !activeSessionId) return;
     setIsSending(true);
+
     const userMsg = { id: Date.now(), type: 'user', text };
-    setSessions(prev => prev.map(s => 
-      s.id === activeSessionId ? { ...s, messages: [...s.messages, userMsg] } : s
+
+    // Build the up-to-date conversation list for THIS session
+    // (using local var because setSessions is async and won't reflect immediately)
+    const currentMessages = activeSession ? activeSession.messages : [];
+    const updatedMessages = [...currentMessages, userMsg];
+
+    // Optimistically render the user message
+    setSessions(prev => prev.map(s =>
+      s.id === activeSessionId ? { ...s, messages: updatedMessages } : s
     ));
+
+    // Transform local message format → backend format
+    // Backend expects: { sender: 'user' | 'bot', text: '...' }
+    // Local format uses: { type: 'user' | 'bot', text: '...' }
+    const historyForAPI = updatedMessages.map(m => ({
+      sender: m.type === 'user' ? 'user' : 'bot',
+      text: m.text
+    }));
+
     try {
-      const response = await api.chat(text, activeSessionId, preference, []);
-      const botMsg = { 
-        id: Date.now() + 1, 
-        type: 'bot', 
-        text: response.response, 
+      // ✅ Pass historyForAPI as 4th arg so Grok sees prior context
+      const response = await api.chat(text, activeSessionId, preference, historyForAPI);
+
+      const botMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: response.response,
         emotion: response.emotion,
-        shap_values: response.shap_values 
+        shap_values: response.shap_values
       };
-      setSessions(prev => prev.map(s => 
+
+      setSessions(prev => prev.map(s =>
         s.id === activeSessionId ? { ...s, messages: [...s.messages, botMsg] } : s
       ));
+
       if (response.crisis && response.crisis.is_crisis) {
         sendCrisisEmail(
           text,
           response.crisis.severity,
           response.emotion,
-          messages
+          updatedMessages
         );
         setCrisisAlert(response.crisis);
       }
@@ -510,4 +533,3 @@ const handleSendMessage = async (text) => {
     </>
   );
 }
- 
