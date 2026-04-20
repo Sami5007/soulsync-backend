@@ -24,6 +24,7 @@ app = Flask(__name__)
 # This tells Flask to let Vercel talk to it!
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+
 print("Loading Lightweight Emotion model...")
 EMOTION_MODEL_NAME = "j-hartmann/emotion-english-distilroberta-base"
 tokenizer = AutoTokenizer.from_pretrained(EMOTION_MODEL_NAME)
@@ -34,8 +35,10 @@ print("Lightweight model loaded!")
 emotion_labels = [emotion_model.config.id2label[i] for i in range(len(emotion_model.config.id2label))]
 logger.info(f"Emotion labels from model config: {emotion_labels}")
 
+
 # --- SHAP EXPLAINER ---
 print("Initializing SHAP Explainer...")
+
 def shap_predict(texts):
     if hasattr(texts, 'tolist'):
         texts = texts.tolist()
@@ -50,22 +53,26 @@ masker = shap.maskers.Text(tokenizer)
 explainer = shap.Explainer(shap_predict, masker, output_names=emotion_labels)
 print("SHAP Explainer ready!")
 
+
 # Grok Model
 GROK_MODEL = "grok-4-1-fast-reasoning"
 logger.info(f"LLM Client ready — model: {GROK_MODEL}")
 
+
 # --- CRISIS EMAIL SENDER ---
 def send_crisis_email(user_message, severity, emotion, history):
-    # 1. Grab the key
+    # 1. Grab the keys
     WEB3FORMS_KEY = os.getenv("WEB3FORMS_KEY")
-    COUNSELOR_EMAIL = os.getenv("COUNSELOR_EMAIL") 
-    
+    COUNSELOR_EMAIL = os.getenv("COUNSELOR_EMAIL")
+
     if not WEB3FORMS_KEY:
         logger.warning("Web3Forms key missing in secrets. Crisis email skipped.")
         return
 
     # 2. Extract recent history
-    history_text = "\n".join([f"{msg.get('sender', 'Unknown').capitalize()}: {msg.get('text', '')}" for msg in history[-5:]]) if history else "No previous context."
+    history_text = "\n".join(
+        [f"{msg.get('sender', 'Unknown').capitalize()}: {msg.get('text', '')}" for msg in history[-5:]]
+    ) if history else "No previous context."
 
     # 3. Build email body
     email_body = f"""
@@ -86,20 +93,21 @@ Please review and intervene if necessary.
         "access_key": WEB3FORMS_KEY,
         "subject": f"URGENT: Soul-Sync Critical Alert ({severity.upper()})",
         "from_name": "SoulSync AI Bot",
-        "email": "noreply@soulsync.com", 
+        "email": "noreply@soulsync.com",
         "message": email_body
     }
 
     try:
         # 5. Send the web request over standard port 443
-        response = requests.post("https://api.web3forms.com/submit", json=payload)
-        
+        response = requests.post("https://api.web3forms.com/submit", json=payload, timeout=10)
+
         if response.status_code == 200:
             logger.info(f"Crisis email sent to {COUNSELOR_EMAIL or 'counselor via Web3Forms'}")
         else:
             logger.error(f"Failed to send email. API Response: {response.text}")
     except Exception as e:
         logger.error(f"Error triggering email API: {str(e)}")
+
 
 def map_to_srs_emotions(detected_emotion):
     mapping = {
@@ -112,6 +120,7 @@ def map_to_srs_emotions(detected_emotion):
         "disgust": "anger"
     }
     return mapping.get(detected_emotion, "neutral")
+
 
 RESPONSES = {}
 
@@ -134,6 +143,7 @@ def load_responses():
     logger.warning("responses.json not found!")
 
 load_responses()
+
 
 # ====================== CRISIS DETECTION ======================
 CRISIS_KEYWORDS = {
@@ -177,14 +187,15 @@ def detect_crisis(message):
     }
 # ============================================================
 
+
 # ====================== HYBRID JSON + GROK ======================
 def get_base_response(emotion, preference):
     """Returns ONE verified base response from responses.json"""
     if not RESPONSES or emotion not in RESPONSES:
         return None
-    
+
     emotion_data = RESPONSES[emotion]
-    
+
     if preference == "islamic":
         options = emotion_data.get("islamic", [])
     elif preference == "psychological":
@@ -193,55 +204,63 @@ def get_base_response(emotion, preference):
         islamic = emotion_data.get("islamic", [])
         psychological = emotion_data.get("psychological", [])
         options = islamic + psychological
-    
+
     if not options:
         return None
     return random.choice(options)
 
 
+# ====================== SINGLE SOURCE OF TRUTH ======================
+# Previously this function was defined 3 times — only the last one was active.
+# Consolidated into ONE robust definition with all keywords merged.
 def is_casual_message(message, emotion):
-    """Smart detection: Is this normal/casual chat or emotional support needed?"""
+    """Smart detection: Is this normal/casual chat or emotional support needed?
+    
+    Returns True for:
+    - Empty messages
+    - Neutral emotion classifications
+    - Messages containing greetings, simple questions, or casual chatter
+    """
     if not message:
         return True
-    
+
     msg_lower = message.lower().strip()
-    
+
     casual_keywords = [
-        "hi", "hello", "hey", "assalamu alaikum", "walaikum", "how are you", "how r u",
-        "what's up", "sup", "what should i", "what is", "how do i", "calculate", "2+2",
-        "math", "random", "bored", "nothing", "just", "talking", "chat", "good morning",
-        "good night", "thank you", "thanks", "bye"
+        # Greetings
+        "hi", "hello", "hey", "assalamu alaikum", "walaikum", "salam",
+        "good morning", "good night", "good evening",
+        # Pleasantries
+        "how are you", "how r u", "what's up", "sup",
+        "thank you", "thanks", "shukriya", "bye", "goodbye",
+        "ok", "okay", "cool",
+        # Casual / off-topic queries
+        "what should i", "what is", "how do i", "calculate", "2+2",
+        "math", "random", "bored", "nothing", "just", "talking", "chat"
     ]
-    
-    # Casual if: neutral emotion OR low confidence OR contains casual keywords
+
+    # Casual if: neutral emotion OR contains casual keywords
     if emotion == "neutral" or any(kw in msg_lower for kw in casual_keywords):
         return True
     return False
 
 
-def is_casual_message(message, emotion):
-    msg_lower = message.lower().strip()
-    casual_keywords = ["hi", "hello", "hey", "assalamu alaikum", "walaikum", "how are you", 
-                       "what's up", "sup", "what should i", "what is", "how do i", "calculate", 
-                       "2+2", "math", "random", "bored", "nothing", "just", "talking", "chat"]
-    return emotion == "neutral" or any(kw in msg_lower for kw in casual_keywords)
-
-
-def is_casual_message(message, emotion):
-    msg_lower = message.lower().strip()
-    casual_keywords = ["hi", "hello", "hey", "assalamu", "walaikum", "how are you", 
-                       "what's up", "sup", "what is", "2+2", "calculate", "math", 
-                       "random", "bored", "nothing", "just", "talking"]
-    return emotion == "neutral" or any(kw in msg_lower for kw in casual_keywords)
-
-
 def get_grok_response(message, emotion, preference, conversation_history):
-    """FAST VERSION - Optimized for speed + natural flow"""
-    
+    """CONTEXT-AWARE VERSION — remembers prior turns and references them."""
+
     is_casual = is_casual_message(message, emotion)
 
     if is_casual:
         system_prompt = """You are Soul-Sync, a warm, friendly Pakistani friend.
+
+CONTEXT MEMORY RULES (CRITICAL):
+- You MUST remember and reference what was discussed earlier in this conversation.
+- If the user previously asked about CBT, Quranic verses, anxiety, breathing exercises, or any specific topic, recall it naturally.
+- Use phrases like "as we discussed earlier", "going back to what you mentioned", "regarding that technique I shared".
+- If the user says "yes", "more", "tell me more", "go on", "continue" — they are referring to your last message. Continue that exact topic.
+- NEVER act like each message is a brand-new conversation.
+
+STYLE:
 Speak naturally and casually in clear English. Keep replies short (2-4 sentences).
 Reference what the user just said. Never sound like a therapist."""
     else:
@@ -251,24 +270,33 @@ Reference what the user just said. Never sound like a therapist."""
 
         system_prompt = f"""You are Soul-Sync, a warm caring friend.
 
+CONTEXT MEMORY RULES (CRITICAL):
+- You MUST remember the entire conversation so far.
+- If the user is following up on something you said before (e.g. "tell me more about that CBT technique", "yes please", "what was the second one") — continue the prior topic naturally.
+- If the user already shared their problem in earlier turns, do NOT ask them to re-explain.
+- Build on previous turns instead of treating each message as standalone.
+
 User just said: "{message}"
 
-Use this base response and rewrite it naturally:
+Use this verified base response and rewrite it naturally,
+weaving in the conversation context above:
 {base_response}
 
 Rules:
-- First acknowledge what user said.
-- Keep exact meaning of base.
-- Sound like a real friend.
+- First acknowledge what user said (and reference earlier turns if relevant).
+- Keep exact meaning of base response.
+- Sound like a real friend who has been listening throughout.
 - Max 200 words."""
 
-    # Build messages (only last 3 messages to reduce tokens)
+    # Build messages — full context window, last 10 turns (was 3 → memory issue fixed)
     messages = [{"role": "system", "content": system_prompt}]
 
     if conversation_history:
-        for turn in conversation_history[-3:]:   # Reduced from 5 → 3
+        for turn in conversation_history[-10:]:   # ↑ raised from 3 to 10
             role = "user" if turn.get("sender") == "user" else "assistant"
-            messages.append({"role": role, "content": turn['text']})
+            text = turn.get('text', '').strip()
+            if text:  # skip empty turns
+                messages.append({"role": role, "content": text})
 
     messages.append({"role": "user", "content": message})
 
@@ -284,15 +312,16 @@ Rules:
                 "model": GROK_MODEL,
                 "messages": messages,
                 "temperature": 0.65 if is_casual else 0.70,
-                "max_tokens": 220,          # Reduced for speed
+                "max_tokens": 280,          # ↑ raised so context-aware replies aren't cut off
                 "top_p": 0.9
             },
-            timeout=8
+            timeout=10                       # ↑ 8 → 10s to accommodate longer context
         )
 
         if response.status_code == 200:
             return response.json()['choices'][0]['message']['content'].strip()
         else:
+            logger.warning(f"Grok API returned {response.status_code}: {response.text}")
             return get_fallback_response(emotion, preference) if not is_casual else "Hey! How are you?"
 
     except Exception as e:
@@ -325,6 +354,7 @@ def get_crisis_response(severity):
         return "It sounds like you're carrying something really heavy. I'm here with you. If things feel too overwhelming, please reach out — Helpline: 1166."
 # ============================================================
 
+
 # ====================== ROUTES ======================
 @app.route('/api/health', methods=['GET'])
 def health():
@@ -337,22 +367,29 @@ def health():
         "timestamp": datetime.now().isoformat()
     }), 200
 
+
 @app.route('/api/info', methods=['GET'])
 def info():
     return jsonify({
         "name": "SOUL-SYNC",
-        "version": "3.0",
-        "description": "Muslim-Aware Mental Wellness Chatbot",
-        "features": ["Emotion Detection", "Crisis Detection", "Hybrid JSON + Grok", "SHAP Explainability"],
+        "version": "3.1",
+        "description": "Muslim-Aware Mental Wellness Chatbot (Context-Aware)",
+        "features": ["Emotion Detection", "Crisis Detection", "Hybrid JSON + Grok", "SHAP Explainability", "Conversation Memory"],
         "emotion_labels": emotion_labels
     }), 200
+
 
 @app.route('/api/session/start', methods=['POST'])
 def start_session():
     data = request.json or {}
     session_id = str(uuid.uuid4())
     logger.info(f"Stateless session initialized: {session_id}")
-    return jsonify({"success": True, "session_id": session_id, "preference": data.get("preference", "hybrid")}), 201
+    return jsonify({
+        "success": True,
+        "session_id": session_id,
+        "preference": data.get("preference", "hybrid")
+    }), 201
+
 
 @app.route('/api/preference', methods=['POST'])
 def set_preference():
@@ -365,6 +402,7 @@ def set_preference():
     except Exception as e:
         logger.error(f"Error setting preference: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -412,8 +450,16 @@ def chat():
             logger.error(f"SHAP Error: {str(e)}")
             top_shap_words = []
 
-if crisis_result["is_crisis"]:
+        # ─── HYBRID PIPELINE: Crisis bypass FIRST, then Grok ───
+        # (FIXED INDENTATION — was at column 0 causing IndentationError)
+        if crisis_result["is_crisis"]:
             response_text = get_crisis_response(crisis_result["severity"])
+            # Fire crisis email asynchronously (non-blocking) — backend redundancy
+            threading.Thread(
+                target=send_crisis_email,
+                args=(message, crisis_result["severity"], emotion, conversation_history),
+                daemon=True
+            ).start()
         else:
             response_text = get_grok_response(
                 message=message,
@@ -422,7 +468,7 @@ if crisis_result["is_crisis"]:
                 conversation_history=conversation_history
             )
 
-        logger.info(f"Emotion: {emotion} | Crisis: {crisis_result['is_crisis']} | Pref: {preference}")
+        logger.info(f"Emotion: {emotion} | Crisis: {crisis_result['is_crisis']} | Pref: {preference} | History turns: {len(conversation_history)}")
 
         return jsonify({
             "message": message,
@@ -440,11 +486,13 @@ if crisis_result["is_crisis"]:
         logger.error(f"Error in /api/chat: {str(e)}")
         return jsonify({"error": "Something went wrong. Please try again.", "detail": str(e)}), 500
 
+
 # Other routes (kept unchanged)
 @app.route('/api/emotion/detect', methods=['POST'])
 def emotion_detect():
-    # ... (your existing code)
-    pass  # You can keep your original emotion_detect if you want
+    # Stub — keep your original logic if you have one
+    pass
+
 
 @app.route('/api/crisis/resources', methods=['GET'])
 def crisis_resources():
@@ -455,10 +503,12 @@ def crisis_resources():
         ]
     }), 200
 
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({"error": "Endpoint not found"}), 404
 
+
 if __name__ == "__main__":
-    logger.info("Starting SOUL-SYNC Backend v3.0 (Hybrid JSON + Grok)")
+    logger.info("Starting SOUL-SYNC Backend v3.1 (Hybrid JSON + Grok + Context Memory)")
     app.run(debug=True, host='0.0.0.0', port=5000)
