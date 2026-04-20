@@ -148,43 +148,170 @@ load_responses()
 # ====================== CRISIS DETECTION ======================
 CRISIS_KEYWORDS = {
     "critical": [
-        r"suicid", r"kill\s*(?:my\s*self|myself|myslef|myelf|me)",
-        r"end\s*(?:it\s*all|my\s*life|everything)", r"take\s*my\s*(?:own\s*)?life",
-        r"slit\s*(?:wrist|vein)", r"hang\s*(?:myself|me)",
-        r"self\s*[\-\s]?harm", r"cut\s*myself", r"overdose",
+        # ─────── ENGLISH: Suicide / Self-harm methods ───────
+        r"suicid",
+        r"commit\s*suicide", r"committing\s*suicide",
+        r"kill\s*(?:my\s*self|myself|myslef|myelf|mself|me)",
+        r"killing\s*(?:myself|me)",
+        r"end\s*(?:it\s*all|my\s*life|everything|myself|me)",
+        r"ending\s*(?:my\s*life|it\s*all|myself)",
+        r"take\s*my\s*(?:own\s*)?life",
+        r"taking\s*my\s*(?:own\s*)?life",
+        r"end\s*it\s*tonight",
+        # Methods
+        r"slit\s*(?:my\s*)?(?:wrist|wrists|vein|veins|throat)",
+        r"cut\s*(?:my\s*)?(?:wrist|wrists|vein|veins|throat)",
+        r"hang\s*(?:myself|me|my\s*self)",
+        r"hanging\s*(?:myself|me)",
+        r"shoot\s*(?:myself|my\s*self|me)",
+        r"jump\s*(?:off|from)\s*(?:a\s*|the\s*)?(?:bridge|building|roof|terrace)",
+        r"jumping\s*off",
+        r"step\s*in\s*front\s*of\s*(?:a\s*)?(?:train|car|truck)",
+        r"drink\s*(?:bleach|poison|acid)",
+        r"swallow\s*(?:pills|poison)",
+        r"self\s*[\-\s]?harm", r"self\s*[\-\s]?harming",
+        r"hurt\s*(?:myself|my\s*self)",
+        r"harm\s*(?:myself|my\s*self)",
+        r"cut\s*(?:myself|my\s*self)",
+        r"cutting\s*(?:myself|my\s*self)",
+        r"burn\s*(?:myself|my\s*self)",
+        r"overdose", r"od\s*on\s*(?:pills|drugs)",
+        r"take\s*(?:all\s*)?(?:the\s*)?pills",
+
+        # ─────── ROMAN URDU: Suicide / Self-harm ───────
+        # khud-kushi / khudkushi / khud kushi (suicide)
+        r"khud[\s\-]?kushi", r"khudkushi", r"khud\s*kashi",
+        r"khudkhushi", r"khud[\s\-]?khushi",
+        # marna / marr jana (to die / kill myself)
+        r"khud\s*ko\s*mar(?:na|do|donga|loon|loungi)",
+        r"apne\s*aap\s*ko\s*mar",
+        r"main\s*marn?a\s*chahta",   # I want to die (m)
+        r"mein\s*marn?a\s*chahti",   # I want to die (f)
+        r"mujhe\s*marn?a\s*hai",
+        r"mujhay\s*marn?a\s*hai",
+        r"mar\s*jaun(?:ga|gi)?",     # I will die
+        r"mar\s*jana\s*chahta",
+        r"mar\s*jana\s*chahti",
+        r"jaan\s*de\s*(?:du(?:nga|ngi)|donga|dungi|du)",   # take my life
+        r"jaan\s*lena",
+        r"apni\s*jaan\s*(?:lena|le\s*lunga|le\s*lungi)",
+        r"zindagi\s*khatam\s*kar",   # end my life
+        r"zindagi\s*khatm\s*kar",
+        r"life\s*khatam\s*kar",
+        # Methods in Roman Urdu
+        r"phaansi\s*(?:laga|lagana|le\s*lunga)",   # hang myself
+        r"phansi\s*(?:laga|lagana)",
+        r"nas\s*kaat",                              # cut veins
+        r"nas\s*katna", r"nasein\s*kaat",
+        r"haath\s*ki\s*nas",
+        r"zehar\s*(?:kha|khana|pee|peena)",        # poison
+        r"zaher\s*kha",
+        r"chhat\s*se\s*kood",                       # jump off roof
+        r"chat\s*se\s*kood",
+        r"goli\s*mar",                              # shoot
+        r"train\s*ke\s*aage",                       # in front of train
     ],
+
     "high": [
-        r"want\s*to\s*die", r"don'?t\s*want\s*to\s*(?:live|be\s*alive|exist)",
-        r"no\s*(?:point|reason)\s*(?:in\s*)?(?:living|to\s*live|to\s*go\s*on)",
-        r"better\s*off\s*(?:dead|without\s*me|if\s*i\s*(?:was|were)\s*gone)",
-        r"wish\s*i\s*(?:was|were)\s*dead", r"can'?t\s*go\s*on",
-        r"done\s*with\s*(?:life|everything|it\s*all)",
+        # ─────── ENGLISH: Death ideation ───────
+        r"want\s*to\s*die", r"wanna\s*die",
+        r"don'?t\s*want\s*to\s*(?:live|be\s*alive|exist|be\s*here)",
+        r"do\s*not\s*want\s*to\s*(?:live|exist)",
+        r"no\s*(?:point|reason)\s*(?:in\s*)?(?:living|to\s*live|to\s*go\s*on|to\s*be\s*alive)",
+        r"better\s*off\s*(?:dead|without\s*me|if\s*i\s*(?:was|were)\s*gone|if\s*i\s*didn'?t\s*exist)",
+        r"world\s*(?:would\s*be\s*)?better\s*without\s*me",
+        r"everyone\s*(?:would\s*be\s*)?better\s*off\s*without\s*me",
+        r"wish\s*i\s*(?:was|were)\s*dead",
+        r"wish\s*i\s*(?:was|were)\s*never\s*born",
+        r"wish\s*i\s*didn'?t\s*exist",
+        r"wish\s*i\s*could\s*(?:disappear|vanish|just\s*sleep\s*forever)",
+        r"can'?t\s*go\s*on",
+        r"cannot\s*go\s*on",
+        r"done\s*with\s*(?:life|everything|it\s*all|this\s*world)",
+        r"tired\s*of\s*(?:living|being\s*alive|life|everything)",
+        r"ready\s*to\s*(?:die|end\s*it)",
+        r"goodbye\s*(?:forever|cruel\s*world|everyone)",
+        r"saying\s*goodbye",
+        r"won'?t\s*be\s*here\s*tomorrow",
+        r"this\s*is\s*(?:my\s*)?(?:last|final)\s*(?:message|goodbye|night)",
+
+        # ─────── ROMAN URDU: Death ideation ───────
+        r"marn?a\s*chahta\s*hoon", r"marn?a\s*chahti\s*hoon",
+        r"marn?a\s*chahta\s*hu",   r"marn?a\s*chahti\s*hu",
+        r"marn?a\s*chahti?\s*ho",
+        r"jeena\s*nahi\s*chahta", r"jeena\s*nahi\s*chahti",
+        r"jeena\s*nahin\s*chahta", r"jeena\s*nahin\s*chahti",
+        r"jeena\s*mushkil",
+        r"zinda\s*nahi\s*rehna", r"zinda\s*nahin\s*rehna",
+        r"zindagi\s*se\s*tang",
+        r"zindagi\s*se\s*thak",
+        r"zindagi\s*bekaar",
+        r"meri\s*zindagi\s*ka\s*koi\s*matlab",
+        r"jeene\s*ka\s*koi\s*(?:matlab|maqsad|faida)",
+        r"jeene\s*ki\s*koi\s*wajah",
+        r"agar\s*main\s*na\s*hota",  r"agar\s*mein\s*na\s*hoti",
+        r"sab\s*meri\s*wajah\s*se",
+        r"meray\s*bina\s*sab\s*better",
+        r"thak\s*gaya\s*hoon", r"thak\s*gayi\s*hoon",
+        r"bardasht\s*nahi\s*hota", r"bardasht\s*nahin\s*hoti",
+        r"alvida\s*hamesha", r"akhri\s*(?:message|paigham|baat)",
     ],
+
     "medium": [
-        r"hopeless", r"worthless", r"useless",
-        r"can'?t\s*(?:take|handle|cope|do\s*this)\s*(?:it|anymore|this)?",
-        r"panic\s*attack", r"breaking\s*down", r"falling\s*apart",
-        r"overwhelmed", r"stressed\s*out", r"can'?t\s*sleep",
+        # ─────── ENGLISH: Distress signals ───────
+        r"hopeless", r"helplessness?",
+        r"worthless", r"useless",
+        r"i\s*(?:am|'m)\s*(?:a\s*)?(?:burden|failure|loser)",
+        r"nobody\s*(?:cares|loves\s*me|would\s*miss\s*me)",
+        r"no\s*one\s*(?:cares|understands|loves\s*me)",
+        r"i\s*hate\s*(?:myself|my\s*life)",
+        r"i\s*can'?t\s*do\s*this\s*anymore",
+        r"can'?t\s*(?:take|handle|cope|deal\s*with|do\s*this)\s*(?:it|anymore|this|life|things)?",
+        r"cannot\s*(?:take|handle|cope)",
+        r"empty\s*inside", r"feel\s*empty", r"feel\s*nothing", r"feel\s*numb",
+        r"panic\s*attack", r"panic\s*attacks",
+        r"anxiety\s*attack",
+        r"breaking\s*down", r"breakdown",
+        r"falling\s*apart", r"falling\s*to\s*pieces",
+        r"can'?t\s*breathe",
+        r"overwhelmed", r"overwhelming",
+        r"stressed\s*out", r"super\s*stressed",
+        r"can'?t\s*sleep", r"haven'?t\s*slept", r"insomnia",
+        r"crying\s*all\s*the\s*time", r"can'?t\s*stop\s*crying",
+        r"in\s*so\s*much\s*pain", r"unbearable\s*pain",
+        r"trapped", r"stuck",
+        r"depressed", r"depression",
+
+        # ─────── ROMAN URDU: Distress signals ───────
+        r"udaas", r"udaasi", r"bohat\s*udaas", r"bahut\s*udaas",
+        r"depress(?:ed|ion)?\s*(?:hoon|hu|hai)",
+        r"pareshan(?:i)?", r"bohat\s*pareshan", r"bahut\s*pareshan",
+        r"tanha(?:i)?",            # alone / loneliness
+        r"akela", r"akeli",
+        r"koi\s*nahi\s*samajhta", r"koi\s*nahin\s*samajhta",
+        r"koi\s*nahi\s*samjhta",
+        r"koi\s*meri\s*parwa\s*nahi", r"koi\s*meri\s*parwa\s*nahin",
+        r"sab\s*khilaaf",
+        r"ghutan",                 # suffocation
+        r"dam\s*ghut",
+        r"ro\s*raha\s*hoon", r"ro\s*rahi\s*hoon",
+        r"rona\s*nahi\s*ruk",
+        r"neend\s*nahi\s*aati", r"neend\s*nahin\s*aati",
+        r"neend\s*nahi\s*aa\s*rahi",
+        r"so\s*nahi\s*pa\s*raha", r"so\s*nahi\s*pa\s*rahi",
+        r"thak\s*chuka", r"thak\s*chuki",
+        r"himmat\s*nahi", r"himmat\s*nahin",
+        r"himmat\s*tut",
+        r"khaali\s*khaali",        # empty
+        r"andar\s*se\s*tut",       # broken inside
+        r"tut\s*chuka", r"tut\s*chuki",
+        r"bekaar\s*hoon", r"nikamma\s*hoon", r"nikammi\s*hoon",
+        r"main\s*kuch\s*nahi", r"mein\s*kuch\s*nahi",
+        r"sab\s*meri\s*ghalti",
+        r"bohat\s*tension", r"bahut\s*tension",
+        r"dimagh\s*kharab",
     ]
 }
-
-def detect_crisis(message):
-    message_lower = message.lower()
-    found_severity = None
-    keywords_found = []
-    for level in ("critical", "high", "medium"):
-        for pattern in CRISIS_KEYWORDS[level]:
-            if re.search(pattern, message_lower, re.IGNORECASE):
-                if found_severity is None:
-                    found_severity = level
-                keywords_found.append(pattern[:30])
-        if found_severity == level:
-            break
-    return {
-        "is_crisis": found_severity is not None,
-        "severity": found_severity,
-        "keywords_found": keywords_found[:3]
-    }
 # ============================================================
 
 
