@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════
+   CRISIS CONSENT MODAL — User consent before email
+   ═══════════════════════════════════════════════ */
+.crisis-consent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 1.5rem;
+  animation: consentFadeIn 0.3s ease;
+}
+
+@keyframes consentFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.crisis-consent-card {
+  background: rgba(15, 20, 35, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+  animation: consentSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes consentSlideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ─── SEVERITY BADGE ─── */
+.crisis-consent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
+}
+
+/* ─── TITLE & DESC ─── */
+.crisis-consent-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 0.75rem;
+  line-height: 1.3;
+}
+
+.crisis-consent-desc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+}
+
+.crisis-consent-desc strong {
+  color: #f8fafc;
+}
+
+/* ─── INFO BOX ─── */
+.crisis-consent-info {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.crisis-consent-info-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.crisis-consent-info ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.crisis-consent-info li {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 2px 0;
+  line-height: 1.5;
+}
+
+.crisis-consent-info-note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(0, 210, 255, 0.8);
+  font-weight: 500;
+}
+
+/* ─── BUTTONS ─── */
+.crisis-consent-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.crisis-consent-yes {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 50px;
+  font-family: inherit;
+}
+
+.crisis-consent-yes:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+}
+
+.crisis-consent-yes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.crisis-consent-no {
+  width: 100%;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.crisis-consent-no:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.crisis-consent-no:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.crisis-consent-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: consentSpin 0.8s linear infinite;
+}
+
+@keyframes consentSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── HELPLINES (always visible) ─── */
+.crisis-consent-helplines {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.25rem;
+}
+
+.crisis-consent-helplines > p {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 0.75rem;
+}
+
+.crisis-consent-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.crisis-consent-hotline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  text-decoration: none;
+  color: #fb7185;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.crisis-consent-hotline:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.crisis-consent-hotline strong {
+  color: #f8fafc;
+  font-size: 1.1rem;
+}
+
+/* ─── MOBILE ─── */
+@media (max-width: 480px) {
+  .crisis-consent-card {
+    padding: 1.75rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .crisis-consent-title {
+    font-size: 1.15rem;
+  }
+}

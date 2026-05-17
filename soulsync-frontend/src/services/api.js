@@ -3,6 +3,13 @@
 const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? 'http://localhost:5000/api'
   : 'https://samikals-soulsyncai.hf.space/api';
+
+// ─── Admin token helpers (sessionStorage = cleared when browser tab closes) ───
+const ADMIN_TOKEN_KEY = 'soulsync_admin_token';
+const getAdminToken = () => sessionStorage.getItem(ADMIN_TOKEN_KEY);
+const setAdminToken = (token) => sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+const clearAdminToken = () => sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+
 export const api = {
   // Health check
   health: async () => {
@@ -46,8 +53,6 @@ export const api = {
       }),
     });
     if (!response.ok) throw new Error('Chat request failed');
-    // ✅ Return raw data — no transformation
-    // Backend returns: { emotion, confidence, response, crisis, ... }
     return response.json();
   },
   // Detect emotion only

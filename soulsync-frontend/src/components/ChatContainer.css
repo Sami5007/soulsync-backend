@@ -60,8 +60,12 @@
   line-height: 1.5;
   border-radius: 20px;
   width: fit-content; /* Hugs the text tightly */
-  word-wrap: break-word;
-  white-space: pre-wrap;
+  
+  /* --- KEYBOARD SMASH FIX --- */
+  max-width: 100%; 
+  overflow-wrap: anywhere; 
+  word-break: break-word;  
+  /* ------------------------- */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -70,6 +74,7 @@
   background: linear-gradient(135deg, #00d2ff, #3a7bd5);
   color: #ffffff;
   border-bottom-right-radius: 4px;
+  white-space: pre-wrap;
 }
 
 /* Bot Bubble (Solid Dark with sharp bottom-left corner) */
@@ -78,6 +83,15 @@
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
   border-bottom-left-radius: 4px;
+  /* --- ADD THESE RULES TO CONTROL PARAGRAPH SPACING --- */
+.message.bot p {
+  margin-top: 0;
+  margin-bottom: 0.75rem; /* Perfect, tight spacing between paragraphs */
+}
+
+.message.bot p:last-child {
+  margin-bottom: 0; /* Prevents extra empty space at the bottom of the bubble */
+}
 }
 
 /* ── METADATA (Emotions & SHAP) ── */
@@ -130,7 +144,7 @@
   border-color: var(--text-tertiary);
 }
 
-/* ── TYPING INDICATOR ── */
+/* ── LEGACY TYPING INDICATOR ── */
 .typing-indicator {
   display: flex;
   gap: 4px;
@@ -160,8 +174,95 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+
+/* ══════════════════════════════════════════════════
+   NEW: ANIMATED AVATAR & GLASS TYPING BUBBLE
+   ══════════════════════════════════════════════════ */
+
+/* The Glowing Avatar */
+.bot-avatar-thinking {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #0f172a; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  animation: gentlePulse 2.5s infinite ease-in-out;
+  flex-shrink: 0; /* Prevents avatar from squishing */
+}
+
+.bot-avatar-thinking img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { 
+      transform: scale(1); 
+      box-shadow: 0 0 4px rgba(0, 210, 255, 0.4); 
+  }
+  50% { 
+      transform: scale(1.1); 
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.8); 
+  }
+}
+
+/* The Glassmorphism Typing Bubble */
+.typing-bubble {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px !important;
+  background: rgba(0, 210, 255, 0.08) !important;
+  border: 1px solid rgba(0, 210, 255, 0.2) !important;
+  color: #00d2ff !important;
+  font-style: italic;
+  min-width: fit-content;
+  margin-bottom: 0 !important; /* overrides any default message margin */
+}
+
+.typing-text {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  animation: pulseText 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Bouncing Dots Animation */
+.bouncing-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  background-color: #00d2ff;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .chat-container { padding: 1rem; }
   .message-content-group { max-width: 85%; }
+  .bot-avatar-thinking { width: 28px; height: 28px; }
 }

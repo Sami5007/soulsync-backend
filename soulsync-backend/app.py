@@ -1,3 +1,5 @@
+from email.mime import message
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -10,7 +12,8 @@ import random
 import json
 import threading
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+from contextlib import contextmanager
 import logging
 from dotenv import load_dotenv
 
@@ -55,8 +58,107 @@ print("SHAP Explainer ready!")
 
 
 # Grok Model
-GROK_MODEL = "grok-4-1-fast-reasoning"
-logger.info(f"LLM Client ready — model: {GROK_MODEL}")
+#GROK_MODEL = "grok-4.20-0309-reasoning"
+#logger.info(f"LLM Client ready — model: {GROK_MODEL}")
+CLAUDE_MODEL ="claude-haiku-4-5"
+logger.info(f"LLM Client ready — model: {CLAUDE_MODEL}")
+
+# ═══════════════════════════════════════════════════════════════
+# ADMIN ANALYTICS — SQLite Setup (Privacy-First, Zero Message Content)
+# ═══════════════════════════════════════════════════════════════
+ANALYTICS_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "analytics.db")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "soulsync2026")
+# In-memory store of active admin tokens (cleared on server restart)
+ACTIVE_ADMIN_TOKENS = {}   # token -> expiry timestamp
+ADMIN_TOKEN_TTL_SECONDS = 60 * 60 * 4   # 4 hours
+
+
+@contextmanager
+def get_db():
+    """Thread-safe SQLite connection context manager."""
+    conn = sqlite3.connect(ANALYTICS_DB_PATH, timeout=10.0)
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def init_analytics_db():
+    """Create the analytics table — ZERO message content stored for privacy."""
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS chat_analytics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id_short TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                emotion TEXT,
+                confidence REAL,
+                preference TEXT,
+                is_crisis INTEGER DEFAULT 0,
+                crisis_severity TEXT,
+                response_time_ms INTEGER,
+                hour INTEGER,
+                day_of_week INTEGER
+            )
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON chat_analytics(timestamp)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_emotion ON chat_analytics(emotion)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_crisis ON chat_analytics(is_crisis)")
+        logger.info(f"Analytics DB initialized at {ANALYTICS_DB_PATH}")
+
+
+def log_analytics(session_id, emotion, confidence, preference, crisis_result, response_time_ms):
+    """Log a chat interaction (no message content stored)."""
+    try:
+        now = datetime.now()
+        session_short = (session_id or "anon")[-4:] if session_id else "anon"
+        with get_db() as conn:
+            conn.execute("""
+                INSERT INTO chat_analytics
+                (session_id_short, emotion, confidence, preference,
+                 is_crisis, crisis_severity, response_time_ms, hour, day_of_week)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                session_short,
+                emotion,
+                round(float(confidence), 4),
+                preference,
+                1 if crisis_result.get("is_crisis") else 0,
+                crisis_result.get("severity"),
+                response_time_ms,
+                now.hour,
+                now.weekday()
+            ))
+    except Exception as e:
+        logger.error(f"Analytics log failed: {e}")
+
+
+def verify_admin_token(token):
+    """Check if token is valid and not expired."""
+    if not token or token not in ACTIVE_ADMIN_TOKENS:
+        return False
+    expiry = ACTIVE_ADMIN_TOKENS[token]
+    if time.time() > expiry:
+        del ACTIVE_ADMIN_TOKENS[token]
+        return False
+    return True
+
+
+def require_admin(req):
+    """Helper: extract token from Authorization header and verify."""
+    auth = req.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        token = auth[7:]
+        return verify_admin_token(token)
+    return False
+
+
+# Initialize the analytics DB on startup
+init_analytics_db()
+# ═══════════════════════════════════════════════════════════════
+
 
 
 # --- CRISIS EMAIL SENDER ---
@@ -317,7 +419,6 @@ CRISIS_KEYWORDS = {
 
 # ====================== HYBRID JSON + GROK ======================
 def get_base_response(emotion, preference):
-    """Returns ONE verified base response from responses.json"""
     if not RESPONSES or emotion not in RESPONSES:
         return None
 
@@ -327,7 +428,7 @@ def get_base_response(emotion, preference):
         options = emotion_data.get("islamic", [])
     elif preference == "psychological":
         options = emotion_data.get("psychological", [])
-    else:  # hybrid
+    else:
         islamic = emotion_data.get("islamic", [])
         psychological = emotion_data.get("psychological", [])
         options = islamic + psychological
@@ -377,7 +478,20 @@ def get_grok_response(message, emotion, preference, conversation_history):
 
     is_casual = is_casual_message(message, emotion)
 
-    if is_casual:
+    # 1. NEW: CRISIS COUNSELING PROMPT
+    if crisis_result and crisis_result.get("is_crisis"):
+        system_prompt = f"""You are Soul-Sync, a deeply compassionate mental health companion.
+The user is in severe distress and experiencing dark/suicidal thoughts.
+User message: "{message}"
+
+CRITICAL RULES:
+1. Validate their immense pain immediately. Show deep, genuine sympathy.
+2. Counsel them gently. Remind them that their life has value and that this darkness is a temporary state.
+3. STRICT FORMAT: Maximum 3 short sentences. No bullet points. No essays. Speak like a caring friend holding their hand.
+4. Do NOT list phone numbers (the system will add them automatically)."""
+
+    # 2. EXISTING CASUAL PROMPT
+    elif is_casual:
         system_prompt = """You are Soul-Sync, a warm, friendly Pakistani friend.
 
 CONTEXT MEMORY RULES (CRITICAL):
@@ -428,15 +542,21 @@ Rules:
     messages.append({"role": "user", "content": message})
 
     try:
-        api_key = os.getenv("GROK_KEY")
+        api_key = os.getenv("CLAUDE_KEY")
         if not api_key:
             return "Hey! I'm here. What's on your mind?" if is_casual else get_fallback_response(emotion, preference)
 
+        # Official Anthropic API URL and Headers
         response = requests.post(
-            url="https://api.x.ai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            url="https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json"
+            },
             json={
-                "model": GROK_MODEL,
+                "model": CLAUDE_MODEL, # E.g., "claude-3-5-haiku-20241022"
+                "system": system_prompt, # System prompt goes here
                 "messages": messages,
                 "temperature": 0.65 if is_casual else 0.70,
                 "max_tokens": 280,          # ↑ raised so context-aware replies aren't cut off
@@ -446,13 +566,23 @@ Rules:
         )
 
         if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content'].strip()
+            response_data = response.json()
+            content_blocks = response_data.get('content', [])
+            
+            # Loop through the content blocks to extract ONLY the final text, 
+            # safely ignoring the "thinking" block or any other future block types.
+            final_text = ""
+            for block in content_blocks:
+                if block.get("type") == "text":
+                    final_text += block.get("text", "")
+            
+            return final_text.strip()
         else:
             logger.warning(f"Grok API returned {response.status_code}: {response.text}")
             return get_fallback_response(emotion, preference) if not is_casual else "Hey! How are you?"
 
     except Exception as e:
-        logger.error(f"Grok error: {e}")
+        logger.error(f"Claude error: {e}")
         return get_fallback_response(emotion, preference) if not is_casual else "I'm right here, friend."
 
 
@@ -488,7 +618,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "emotion_model": EMOTION_MODEL_NAME,
-        "llm_model": GROK_MODEL,
+        "llm_model": CLAUDE_MODEL,
         "emotions_supported": len(emotion_labels),
         "responses_loaded": len(RESPONSES) > 0,
         "timestamp": datetime.now().isoformat()
@@ -533,6 +663,7 @@ def set_preference():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    start_ts = time.time()    # for analytics response_time_ms
     try:
         data = request.json
         if not data:
@@ -542,7 +673,8 @@ def chat():
         session_id = data.get("session_id")
         preference = data.get("preference", "hybrid")
         conversation_history = data.get("history", [])
-
+        if conversation_history and conversation_history[-1].get("text") == message:
+            conversation_history = conversation_history[:-1]
         if not message:
             return jsonify({"error": "No message provided"}), 400
         if len(message) > 500:

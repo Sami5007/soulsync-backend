@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './ChatContainer.css';
+import ReactMarkdown from 'react-markdown';
 
 const EMOTION_COLORS = {
   joy: '#ffb6c1', love: '#ffb6c1', admiration: '#c084fc',
@@ -20,7 +21,7 @@ const EMOTION_LABELS = {
   sadness: 'Sadness', fear: 'Fear', neutral: 'Neutral', confusion: 'Confusion'
 };
 
-// SHAP UI Component (Updated to look like SRS Figure 8 bars)
+// ─── SHAP EXPLAINABILITY COMPONENT ───
 const ShapExplainability = ({ shapValues }) => {
   const [expanded, setExpanded] = useState(false);
   if (!shapValues || shapValues.length === 0) return null;
@@ -49,12 +50,59 @@ const ShapExplainability = ({ shapValues }) => {
   );
 };
 
-export const ChatContainer = ({ messages }) => {
-  const endRef = useRef(null);
+// ─── NEW: ANIMATED TYPING INDICATOR WITH AVATAR ───
+const TypingIndicator = () => {
+  const [phrase, setPhrase] = useState("Reflecting");
 
   useEffect(() => {
+    const phrases = [
+      "Reflecting", 
+      "Analyzing your words...", 
+      "Gathering my thoughts...", 
+      "Thinking"
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      i = (i + 1) % phrases.length;
+      setPhrase(phrases[i]);
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="message-wrapper bot">
+      {/* Container aligned as a row to put avatar next to bubble */}
+      <div className="message-content-group" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', gap: '10px' }}>
+        
+        {/* The Glowing Avatar */}
+        <div className="bot-avatar-thinking">
+          <img src="/Logo-soulsync.png" alt="Soul-Sync" />
+        </div>
+
+        {/* The Typing Bubble */}
+        <div className="message bot typing-bubble">
+          <span className="typing-text">{phrase}</span>
+          <div className="bouncing-dots">
+            <div className="dot"></div>
+            <div className="dot"></div>
+            <div className="dot"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+// ─── MAIN CHAT CONTAINER ───
+export const ChatContainer = ({ messages, isSending }) => {
+  const endRef = useRef(null);
+
+  // Auto-scroll runs when messages change OR when bot starts/stops sending
+  useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isSending]);
 
   // Empty State (Welcome Message)
   if (!messages || messages.length === 0) {
@@ -83,8 +131,8 @@ export const ChatContainer = ({ messages }) => {
   return (
     <div className="chat-container">
       <div className="messages">
-        {messages.map((msg, ) => (
-          <div key={msg.id} style={{ display: 'contents' }}>
+        {messages.map((msg, index) => (
+          <div key={msg.id || `msg-${index}`} style={{ display: 'contents' }}>
             
             {/* USER MESSAGE (Aligns Right) */}
             {msg.type === 'user' && (
@@ -95,34 +143,22 @@ export const ChatContainer = ({ messages }) => {
               </div>
             )}
 
-            {/* TYPING INDICATOR (Aligns Left) */}
+            {/* LEGACY TYPING INDICATOR (Replaced with new one just in case it triggers via array) */}
             {msg.type === 'typing' && (
-              <div className="message-wrapper bot">
-                <div className="typing-indicator">
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                </div>
-              </div>
+              <TypingIndicator />
             )}
 
             {/* BOT MESSAGE (Aligns Left) */}
             {msg.type === 'bot' && (
               <div className="message-wrapper bot">
                 <div className="message-content-group">
-                  <div className="message bot">{msg.text}</div>
+                  <div className="message bot">
+    <ReactMarkdown>{msg.text}</ReactMarkdown>
+</div>
                   
                   {/* Metadata sits cleanly underneath the left-aligned bubble */}
                   <div className="bot-metadata">
-                    {msg.emotion && (
-                      <div className="emotion-badge">
-                        <span className="emotion-dot" style={{ background: EMOTION_COLORS[msg.emotion] || '#9db4c0' }} />
-                        <span className="emotion-label">{EMOTION_LABELS[msg.emotion] || msg.emotion}</span>
-                        {msg.confidence && (
-                          <span className="emotion-confidence">({(msg.confidence * 100).toFixed(0)}%)</span>
-                        )}
-                      </div>
-                    )}
+
 
                     {msg.crisis?.is_crisis && (
                       <div style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #f87171', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, marginTop: '4px' }}>
@@ -149,6 +185,10 @@ export const ChatContainer = ({ messages }) => {
 
           </div>
         ))}
+        
+        {/* NEW: Displays the animated avatar when the backend is processing */}
+        {isSending && <TypingIndicator />}
+
         <div ref={endRef} />
       </div>
     </div>

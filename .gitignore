@@ -13,4 +13,4 @@ soulsync-frontend/node_modules/
 crisis_temp.db
 crisis_log.json
 .env
-.env.local
+.env.localcd
