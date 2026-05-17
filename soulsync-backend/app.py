@@ -1,5 +1,5 @@
+import sqlite3
 from email.mime import message
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -11,7 +11,6 @@ import uuid
 import random
 import json
 import threading
-import sqlite3
 import os
 from datetime import datetime, timedelta
 from contextlib import contextmanager
