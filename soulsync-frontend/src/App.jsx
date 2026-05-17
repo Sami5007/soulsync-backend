@@ -3,7 +3,7 @@ import { ChatContainer } from './components/ChatContainer';
 import { MessageInput } from './components/MessageInput';
 import { sendCrisisEmail } from './services/crisisEmail';
 import { CrisisAlert } from './components/CrisisAlert';
-import { CrisisConsentModal } from './components/CrisisConsentModal';
+import { CrisisConsentmodal } from './components/CrisisConsentmodal';
 import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
 import { AdminLogin } from './components/AdminLogin';
