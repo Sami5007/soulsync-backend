@@ -1,11 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-.chat-content-wrapper > :first-child {
+/* ── MAIN SCROLL CONTAINER ── */
+.chat-container {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  min-height: 0;        /* ← add this */
-  padding-bottom: 1rem;
+  min-height: 0;          /* CRITICAL — allows flex to shrink it properly */
+  padding: 0;             /* No padding here — padding lives in .messages */
+  background: var(--bg-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  scroll-behavior: smooth;
 }
 
 /* ── BULLETPROOF FLEXBOX LAYOUT ── */
@@ -16,6 +20,7 @@
   max-width: 850px;
   margin: 0 auto;
   width: 100%;
+  padding: 2rem 2rem 2rem 2rem; /* Padding moved here from .chat-container */
   padding-bottom: 2rem;
 }
 
@@ -82,15 +87,15 @@
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
   border-bottom-left-radius: 4px;
-  /* --- ADD THESE RULES TO CONTROL PARAGRAPH SPACING --- */
+}
+
 .message.bot p {
   margin-top: 0;
-  margin-bottom: 0.75rem; /* Perfect, tight spacing between paragraphs */
+  margin-bottom: 0.75rem;
 }
 
 .message.bot p:last-child {
-  margin-bottom: 0; /* Prevents extra empty space at the bottom of the bubble */
-}
+  margin-bottom: 0;
 }
 
 /* ── METADATA (Emotions & SHAP) ── */
@@ -190,7 +195,7 @@
   padding: 3px;
   border: 1px solid rgba(0, 210, 255, 0.3);
   animation: gentlePulse 2.5s infinite ease-in-out;
-  flex-shrink: 0; /* Prevents avatar from squishing */
+  flex-shrink: 0;
 }
 
 .bot-avatar-thinking img {
@@ -202,12 +207,12 @@
 
 @keyframes gentlePulse {
   0%, 100% { 
-      transform: scale(1); 
-      box-shadow: 0 0 4px rgba(0, 210, 255, 0.4); 
+    transform: scale(1); 
+    box-shadow: 0 0 4px rgba(0, 210, 255, 0.4); 
   }
   50% { 
-      transform: scale(1.1); 
-      box-shadow: 0 0 12px rgba(0, 210, 255, 0.8); 
+    transform: scale(1.1); 
+    box-shadow: 0 0 12px rgba(0, 210, 255, 0.8); 
   }
 }
 
@@ -222,7 +227,7 @@
   color: #00d2ff !important;
   font-style: italic;
   min-width: fit-content;
-  margin-bottom: 0 !important; /* overrides any default message margin */
+  margin-bottom: 0 !important;
 }
 
 .typing-text {
@@ -261,7 +266,8 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-  .chat-container { padding: 1rem; }
+  .chat-container { padding: 0; }
+  .messages { padding: 1rem; }
   .message-content-group { max-width: 85%; }
   .bot-avatar-thinking { width: 28px; height: 28px; }
 }
