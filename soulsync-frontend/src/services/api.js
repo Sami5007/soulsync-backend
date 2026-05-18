@@ -1,31 +1,25 @@
 // api.js // API Service for SOUL-SYNC Backend
-// If testing on your laptop, use localhost. If on Vercel, use Hugging Face!
 const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? 'http://localhost:5000/api'
   : 'https://samikals-soulsyncai.hf.space/api';
 
-// ─── Admin token helpers (sessionStorage = cleared when browser tab closes) ───
+// ─── Admin token helpers ───
 const ADMIN_TOKEN_KEY = 'soulsync_admin_token';
-const getAdminToken = () => sessionStorage.getItem(ADMIN_TOKEN_KEY);
-const setAdminToken = (token) => sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
-const clearAdminToken = () => sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+export const getAdminToken = () => sessionStorage.getItem(ADMIN_TOKEN_KEY);
+export const setAdminToken = (token) => sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+export const clearAdminToken = () => sessionStorage.removeItem(ADMIN_TOKEN_KEY);
 
 export const api = {
-  // Health check
   health: async () => {
     const response = await fetch(`${API_BASE_URL}/health`);
     if (!response.ok) throw new Error('Backend not responding');
     return response.json();
   },
-
-  // Get app info
   info: async () => {
     const response = await fetch(`${API_BASE_URL}/info`);
     if (!response.ok) throw new Error('Could not fetch app info');
     return response.json();
   },
-
-  // Start a new session
   startSession: async (preference = 'hybrid') => {
     const response = await fetch(`${API_BASE_URL}/session/start`, {
       method: 'POST',
@@ -35,31 +29,20 @@ export const api = {
     if (!response.ok) throw new Error('Could not start session');
     return response.json();
   },
-
-  // Get session info
   getSession: async (sessionId) => {
     const response = await fetch(`${API_BASE_URL}/session/${sessionId}`);
     if (!response.ok) throw new Error('Session not found');
     return response.json();
   },
-
-  // Send chat message
   chat: async (message, sessionId, preference = 'hybrid', history = []) => {
     const response = await fetch(`${API_BASE_URL}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message,
-        session_id: sessionId,
-        preference,
-        history,
-      }),
+      body: JSON.stringify({ message, session_id: sessionId, preference, history }),
     });
     if (!response.ok) throw new Error('Chat request failed');
     return response.json();
   },
-
-  // Detect emotion only
   detectEmotion: async (message) => {
     const response = await fetch(`${API_BASE_URL}/emotion/detect`, {
       method: 'POST',
@@ -69,53 +52,55 @@ export const api = {
     if (!response.ok) throw new Error('Emotion detection failed');
     return response.json();
   },
-
-  // Get crisis resources
   getCrisisResources: async () => {
     const response = await fetch(`${API_BASE_URL}/crisis/resources`);
     if (!response.ok) throw new Error('Could not fetch crisis resources');
     return response.json();
-  },
+  }
+};
 
-  // ─── Admin ───
-  admin: {
-    verify: async () => {
-      try {
-        const token = getAdminToken();
-        if (!token) return false;
-        const response = await fetch(`${API_BASE_URL}/admin/verify`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        return data.valid === true;
-      } catch {
-        return false;
-      }
-    },
-    login: async (password) => {
-      const response = await fetch(`${API_BASE_URL}/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-      const data = await response.json();
-      if (data.success && data.token) {
-        setAdminToken(data.token);
-        return true;
-      }
-      return false;
-    },
-    logout: () => {
+// ─── ADMIN FLATTENED FUNCTIONS ───
+export const adminVerify = async () => {
+  try {
+    const token = getAdminToken();
+    if (!token) return false;
+    const response = await fetch(`${API_BASE_URL}/admin/verify`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    return data.valid === true;
+  } catch {
+    return false;
+  }
+};
+
+export const adminLogin = async (password) => {
+  const response = await fetch(`${API_BASE_URL}/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password })
+  });
+  const data = await response.json();
+  if (data.success && data.token) {
+    setAdminToken(data.token);
+    return true;
+  }
+  return false;
+};
+
+export const adminLogout = () => {
+  clearAdminToken();
+};
+
+export const getAdminStats = async () => {
+  const token = getAdminToken();
+  const response = await fetch(`${API_BASE_URL}/admin/analytics`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (response.status === 401) {
       clearAdminToken();
-    },
-    /* ✅ FIXED METHOD NAME TO MATCH DASHBOARD CALL */
-    getStats: async () => {
-      const token = getAdminToken();
-      const response = await fetch(`${API_BASE_URL}/admin/analytics`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to fetch analytics');
-      return response.json();
-    }
-  },
+      window.location.reload(); 
+  }
+  if (!response.ok) throw new Error('Failed to fetch analytics');
+  return response.json();
 };
