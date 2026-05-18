@@ -1180,12 +1180,12 @@ div.input-container,
   z-index: 2;
 }
 
-/* Forces the ChatContainer (the first child) to take up remaining space and scroll */
 .chat-content-wrapper > :first-child {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 1rem; /* Gives a little breathing room above the input */
+  min-height: 0;        /* ← THIS is the key fix */
+  padding-bottom: 1rem;
 }
 
 /* Keeps the input area strictly at the bottom */
