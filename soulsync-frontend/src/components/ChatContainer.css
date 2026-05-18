@@ -1,12 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-.chat-container {
+.chat-content-wrapper > :first-child {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
-  background: var(--bg-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  scroll-behavior: smooth;
+  overflow-x: hidden;
+  min-height: 0;        /* ← add this */
+  padding-bottom: 1rem;
 }
 
 /* ── BULLETPROOF FLEXBOX LAYOUT ── */
