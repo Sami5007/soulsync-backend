@@ -534,25 +534,27 @@ export default function App() {
           />
           
           {/* 1. Use the class we styled, not inline styles */}
-          <div className="chat-container">
-            
-            {/* 2. The Emotion Glow MUST go here to be trapped inside the chat area */}
-            {currentEmotion && (
-              <>
-                <div className={`emotion-atmosphere mood-${currentEmotion}`} />
-                <div className={`emotion-glow-orb mood-${currentEmotion}`} />
-              </>
-            )}
+         {/* REPLACE WITH THIS: */}
+<div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
 
-            {/* 3. Wrap your UI in a relative div with zIndex: 2 so it sits ON TOP of the glow */}
-<div className="chat-content-wrapper" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>              
-              <ChatContainer messages={messages} isSending={isSending} />
-              
-              <div className={`chat-input-area ${emotionClass}`}>
-                <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
-              </div>
+  {currentEmotion && (
+    <>
+      <div className={`emotion-atmosphere mood-${currentEmotion}`} />
+      <div className={`emotion-glow-orb mood-${currentEmotion}`} />
+    </>
+  )}
 
-            </div>
+  {/* Messages — scrolls */}
+  <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, position: 'relative', zIndex: 2 }}>
+    <ChatContainer messages={messages} isSending={isSending} />
+  </div>
+
+  {/* Input — pinned at bottom */}
+  <div style={{ flexShrink: 0, position: 'relative', zIndex: 2 }}>
+    <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
+  </div>
+
+</div>
             
           </div>
         </div>
