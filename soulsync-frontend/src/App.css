@@ -803,18 +803,20 @@ body {
   flex: 1;
   height: 100%;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  background: transparent !important; /* Ensures the blue doesn't block the glow */
+  z-index: 1; /* Creates a clean box for the glow */
 }
 
 .sidebar {
   width: 280px;
-  background: #0a1628 !important;   /* Hard-coded solid core dark blue */
+  background: #0a1628 !important;
   border-right: 1px solid rgba(0, 229, 255, 0.12) !important;
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
   overflow: hidden;
+  position: relative; 
+  z-index: 10; /* Forces sidebar to ALWAYS sit perfectly above the glow */
 }
 
 .sidebar.collapsed { width: 0; border-right: none; }
@@ -1051,26 +1053,22 @@ body {
   transition: all 2s ease;
 }
 
-.emotion-atmosphere {
-  position: absolute; /* CHANGED FROM FIXED TO KEEP INSIDE CHAT CONTAINER */
+/* Ensure the glow orbs are absolute inside the chat-container */
+.emotion-atmosphere, 
+.emotion-glow-orb {
+  position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 0; /* Keeps the color behind the text */
   pointer-events: none;
-  opacity: 0;
-  transition: all 2.5s ease;
 }
 
 .emotion-glow-orb {
-  position: absolute; /* CHANGED FROM FIXED TO KEEP INSIDE CHAT CONTAINER */
   width: 600px;
   height: 600px;
   border-radius: 50%;
   top: 10%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
   filter: blur(150px);
   transition: all 2.5s ease;
 }
