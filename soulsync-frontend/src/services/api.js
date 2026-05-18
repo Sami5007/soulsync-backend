@@ -1,4 +1,4 @@
-// API Service for SOUL-SYNC Backend
+// api.js // API Service for SOUL-SYNC Backend
 // If testing on your laptop, use localhost. If on Vercel, use Hugging Face!
 const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? 'http://localhost:5000/api'
@@ -108,7 +108,8 @@ export const api = {
     logout: () => {
       clearAdminToken();
     },
-    getAnalytics: async () => {
+    /* ✅ FIXED METHOD NAME TO MATCH DASHBOARD CALL */
+    getStats: async () => {
       const token = getAdminToken();
       const response = await fetch(`${API_BASE_URL}/admin/analytics`, {
         headers: { 'Authorization': `Bearer ${token}` }
