@@ -797,6 +797,16 @@ body {
   overflow: hidden;
 }
 
+/* Added to anchor the absolute emotion elements inside the chat area */
+.chat-container {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .sidebar {
   width: 280px;
   background: #0a1628 !important;   /* Hard-coded solid core dark blue */
@@ -1042,7 +1052,7 @@ body {
 }
 
 .emotion-atmosphere {
-  position: fixed;
+  position: absolute; /* CHANGED FROM FIXED TO KEEP INSIDE CHAT CONTAINER */
   inset: 0;
   z-index: 0;
   pointer-events: none;
@@ -1051,7 +1061,7 @@ body {
 }
 
 .emotion-glow-orb {
-  position: fixed;
+  position: absolute; /* CHANGED FROM FIXED TO KEEP INSIDE CHAT CONTAINER */
   width: 600px;
   height: 600px;
   border-radius: 50%;
