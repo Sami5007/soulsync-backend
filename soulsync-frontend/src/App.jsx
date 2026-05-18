@@ -7,7 +7,8 @@ import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
 import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
-import { adminVerify } from './services/api';
+// ✅ Import the api object alongside adminVerify
+import { api, adminVerify } from './services/api';
 import './App.css';
 
 /**
@@ -267,7 +268,8 @@ export default function App() {
   useEffect(() => {
     if (route === '#admin') {
       setAdminChecking(true);
-      api.admin.verify().then(valid => {
+      // ✅ FIXED: Calls the flat function instead of api.admin.verify()
+      adminVerify().then(valid => {
         setAdminAuthed(valid);
         setAdminChecking(false);
       });
