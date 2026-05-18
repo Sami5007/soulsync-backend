@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { ChatContainer } from './components/ChatContainer';
 import { MessageInput } from './components/MessageInput';
 import { CrisisAlert } from './components/CrisisAlert';
-import { sendCrisisEmail } from './services/crisisEmail';
 import { CrisisConsentmodal } from './components/CrisisConsentmodal';
 import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
