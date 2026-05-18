@@ -7,16 +7,10 @@ import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
 import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
-// ✅ Import the api object alongside adminVerify
 import { api, adminVerify } from './services/api';
-// ✅ CHANGE 1: Re-added sendCrisisEmail (calls Web3Forms from browser — free plan compatible)
 import { sendCrisisEmail } from './services/crisisEmail';
 import './App.css';
 
-/**
- * COMPONENT: Particles — emotion-aware colors
- * Reads the emotion prop and applies matching CSS class for particle color
- */
 function Particles({ emotion }) {
   const containerRef = useRef(null);
   useEffect(() => {
@@ -246,21 +240,15 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [scrolled, setScrolled] = useState(false);
 
-  // ── ADMIN STATE ──
   const [route, setRoute] = useState(window.location.hash);
   const [adminAuthed, setAdminAuthed] = useState(false);
   const [adminChecking, setAdminChecking] = useState(true);
-
-  // ── CRISIS CONSENT STATE ──
   const [pendingCrisis, setPendingCrisis] = useState(null);
-
-  // ── EMOTION-AWARE UI STATE ──
   const [currentEmotion, setCurrentEmotion] = useState(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession ? activeSession.messages : [];
 
-  // ── HASH ROUTING ──
   useEffect(() => {
     const handleHashChange = () => setRoute(window.location.hash);
     window.addEventListener('hashchange', handleHashChange);
@@ -300,7 +288,6 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // ── API HANDLERS ──
   const startNewSession = async (pref) => {
     setLoading(true);
     setCurrentEmotion(null);
@@ -354,15 +341,12 @@ export default function App() {
         s.id === activeSessionId ? { ...s, messages: [...s.messages, botMsg] } : s
       ));
 
-      // ✅ EMOTION-AWARE UI: Update the atmosphere on every bot response
       if (response.emotion) {
         setCurrentEmotion(response.emotion);
       }
 
       if (response.crisis && response.crisis.is_crisis) {
-        // ✅ CHANGE 2: Send crisis email from browser (Web3Forms free plan compatible)
         sendCrisisEmail(text, response.crisis.severity, response.emotion, updatedMessages);
-
         setCrisisAlert(null);
         setPendingCrisis(null);
         setTimeout(() => {
@@ -382,13 +366,9 @@ export default function App() {
     }
   };
 
-  // ── CRISIS CONSENT HANDLERS ──
-  // Note: handleCrisisConsent now also uses sendCrisisEmail from the browser
-  // instead of calling the backend endpoint (which used Web3Forms server-side)
   const handleCrisisConsent = async () => {
     if (!pendingCrisis) return;
     const { userMessage, crisisData, emotion, history } = pendingCrisis;
-    // ✅ CHANGE 2 (cont): Use frontend sendCrisisEmail instead of backend fetch
     await sendCrisisEmail(userMessage, crisisData.severity, emotion, history);
     console.log('[Crisis] Counselor email sent with user consent');
     setPendingCrisis(null);
@@ -399,10 +379,7 @@ export default function App() {
     setPendingCrisis(null);
   };
 
-  const handleDismissCrisis = () => {
-    setCrisisAlert(null);
-  };
-
+  const handleDismissCrisis = () => setCrisisAlert(null);
   const handleStartJourney = () => setStage('preference');
 
   const handlePreferenceSelect = (selectedPref) => {
@@ -414,11 +391,7 @@ export default function App() {
     }
   };
 
-  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
-
-  // ══════════════════════════════════════════
-  // RENDER: ADMIN ROUTES
-  // ══════════════════════════════════════════
+  // ── ADMIN ──
   if (route === '#admin') {
     if (adminChecking) {
       return (
@@ -434,7 +407,6 @@ export default function App() {
         </div>
       );
     }
-
     if (!adminAuthed) {
       return (
         <AdminLogin
@@ -443,7 +415,6 @@ export default function App() {
         />
       );
     }
-
     return (
       <AdminDashboard
         onLogout={() => { setAdminAuthed(false); window.location.hash = ''; }}
@@ -451,9 +422,7 @@ export default function App() {
     );
   }
 
-  // ══════════════════════════════════════════
-  //  RENDER: WELCOME
-  // ══════════════════════════════════════════
+  // ── WELCOME ──
   if (stage === 'welcome') {
     return (
       <div className="landing-wrapper">
@@ -469,9 +438,7 @@ export default function App() {
     );
   }
 
-  // ══════════════════════════════════════════
-  //  RENDER: PREFERENCE
-  // ══════════════════════════════════════════
+  // ── PREFERENCE ──
   if (stage === 'preference') {
     return (
       <div className="preference-overlay">
@@ -484,20 +451,18 @@ export default function App() {
     );
   }
 
-  // ══════════════════════════════════════════
-  //  RENDER: CHAT INTERFACE — with emotion-aware atmosphere
-  // ══════════════════════════════════════════
-
+  // ── CHAT ──
   const emotionClass = currentEmotion ? `mood-${currentEmotion}` : '';
 
   return (
     <>
       <div className={`emotion-atmosphere ${emotionClass}`} />
       <div className={`emotion-glow-orb ${emotionClass}`} />
-
       <Particles emotion={currentEmotion} />
 
       <div className={`app ${emotionClass}`}>
+        
+        {/* ── HEADER ── */}
         <header className="header">
           <div className="logo-container">
             <img src="/Logo-soulsync.png" alt="Soul-Sync" className="logo-image" />
@@ -516,14 +481,19 @@ export default function App() {
               </div>
             )}
             <div className="control-button" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
             </div>
-
             <PreferenceSelector preference={preference} onPreferenceChange={setPreference} />
           </div>
         </header>
 
-<div className="main-content">
+        {/* ── MAIN CONTENT ── */}
+        <div className="main-content">
+          
           <Sidebar
             open={sidebarOpen}
             sessions={sessions}
@@ -532,46 +502,58 @@ export default function App() {
             onSelectSession={setActiveSessionId}
             isSending={isSending}
           />
-          
-          {/* 1. Use the class we styled, not inline styles */}
-         
-{/* REPLACE WITH: */}
-<div style={{ 
-  flex: 1, 
-  display: 'flex', 
-  flexDirection: 'column', 
-  overflow: 'hidden', 
-  position: 'relative',
-  height: '100%',        /* ← add this */
-  maxHeight: '100%'      /* ← add this */
-}}>
-  {currentEmotion && (
-    <>
-      <div className={`emotion-atmosphere mood-${currentEmotion}`} />
-      <div className={`emotion-glow-orb mood-${currentEmotion}`} />
-    </>
-  )}
 
-  {/* Messages — scrolls */}
-<div style={{ 
-  flex: 1, 
-  overflowY: 'auto', 
-  overflowX: 'hidden', 
-  minHeight: 0,          /* ← keep this */
-  maxHeight: '100%',     /* ← add this */
-  position: 'relative', 
-  zIndex: 2 
-}}>    <ChatContainer messages={messages} isSending={isSending} />
-  </div>
+          {/* ── CHAT AREA — this is the key fix ── */}
+          {/* 
+            THE FIX: 
+            - This outer div is a fixed-height flex column (fills remaining space)
+            - The messages scroller gets flex:1 + minHeight:0 so it shrinks properly
+            - The input wrapper gets flexShrink:0 so it NEVER moves
+            - overflow:hidden on outer prevents any child from escaping
+          */}
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            overflow: 'hidden',
+            position: 'relative',
+          }}>
 
-  {/* Input — pinned at bottom */}
-  <div style={{ flexShrink: 0, position: 'relative', zIndex: 2 }}>
-    <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
-  </div>
+            {/* Emotion glow trapped inside */}
+            {currentEmotion && (
+              <>
+                <div className={`emotion-atmosphere mood-${currentEmotion}`} />
+                <div className={`emotion-glow-orb mood-${currentEmotion}`} />
+              </>
+            )}
 
-</div>
-            
+            {/* Messages scroll area — expands and scrolls */}
+            <div style={{
+              flex: 1,
+              minHeight: 0,        /* THE critical line — without this flex won't shrink */
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              position: 'relative',
+              zIndex: 2,
+            }}>
+              <ChatContainer messages={messages} isSending={isSending} />
+            </div>
+
+            {/* Input bar — pinned, never moves */}
+            <div style={{
+              flexShrink: 0,       /* Never shrink, never push */
+              position: 'relative',
+              zIndex: 10,
+            }}>
+              <MessageInput
+                onSendMessage={handleSendMessage}
+                disabled={!activeSessionId || isSending}
+              />
+            </div>
+
           </div>
+
         </div>
 
         {crisisAlert && (
@@ -589,6 +571,7 @@ export default function App() {
             onDecline={handleCrisisDecline}
           />
         )}
+
       </div>
     </>
   );
