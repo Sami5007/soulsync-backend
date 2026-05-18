@@ -1180,11 +1180,12 @@ div.input-container,
   z-index: 2;
 }
 
+/* CHANGE TO: */
 .chat-content-wrapper > :first-child {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  min-height: 0;        /* ← THIS is the key fix */
+  min-height: 0;        /* ← add this line */
   padding-bottom: 1rem;
 }
 
