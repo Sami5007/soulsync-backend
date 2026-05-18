@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer, LineChart, Line, Legend
 } from 'recharts';
 import { api } from '../services/api';
-//import './AdminDashboard.css';
+import './AdminDashboard.css';
 
 // Color palette matching your glassmorphism theme
 const EMOTION_COLORS = {
