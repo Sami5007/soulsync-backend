@@ -1149,3 +1149,220 @@ body {
   .logo-image { width: 26px; height: 26px; }
   .nav-cta { padding: 5px 10px; font-size: 10px; }
 }
+/* ═══════════════════════════════════════════
+   EMOTION-AWARE DYNAMIC UI
+   ═══════════════════════════════════════════ */
+.app,
+.app .chat-container {
+  transition: all 2s ease;
+}
+
+.emotion-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 2.5s ease;
+}
+
+.emotion-glow-orb {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(150px);
+  transition: all 2.5s ease;
+}
+
+.emotion-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 1s ease;
+}
+
+.emotion-indicator-emoji { font-size: 15px; line-height: 1; }
+.emotion-indicator-label { font-size: 0.75rem; font-weight: 600; }
+
+/* ── JOY ── */
+.app.mood-joy { background: linear-gradient(180deg, #1a1608 0%, #2d1f0a 30%, #1a1205 100%) !important; }
+.emotion-atmosphere.mood-joy { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(251,191,36,0.2) 0%, transparent 60%); }
+.emotion-glow-orb.mood-joy { opacity: 1; background: rgba(251,191,36,0.25); }
+.emotion-indicator.mood-joy { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+
+/* ── SADNESS ── */
+.app.mood-sadness { background: linear-gradient(180deg, #0a0a1f 0%, #0d1030 30%, #080818 100%) !important; }
+.emotion-atmosphere.mood-sadness { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(129,140,248,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-sadness { opacity: 1; background: rgba(99,102,241,0.2); }
+.emotion-indicator.mood-sadness { background: rgba(129,140,248,0.15); border-color: rgba(129,140,248,0.4); color: #818cf8; }
+
+/* ── ANGER ── */
+.app.mood-anger { background: linear-gradient(180deg, #1a0808 0%, #2a0a0a 30%, #150505 100%) !important; }
+.emotion-atmosphere.mood-anger { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(239,68,68,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-anger { opacity: 1; background: rgba(239,68,68,0.2); }
+.emotion-indicator.mood-anger { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.4); color: #e0a9a9; }
+
+/* ── FEAR ── */
+.app.mood-fear { background: linear-gradient(180deg, #120a1f 0%, #1a0f30 30%, #0d0818 100%) !important; }
+.emotion-atmosphere.mood-fear { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(139,92,246,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-fear { opacity: 1; background: rgba(139,92,246,0.2); }
+.emotion-indicator.mood-fear { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #a78bfa; }
+
+/* ── CONFUSION ── */
+.app.mood-confusion { background: linear-gradient(180deg, #0a1508 0%, #0f2010 30%, #081205 100%) !important; }
+.emotion-atmosphere.mood-confusion { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(132,204,22,0.15) 0%, transparent 60%); }
+.emotion-glow-orb.mood-confusion { opacity: 1; background: rgba(132,204,22,0.18); }
+.emotion-indicator.mood-confusion { background: rgba(163,230,53,0.15); border-color: rgba(163,230,53,0.4); color: #a3e635; }
+
+/* ── NEUTRAL ── */
+.emotion-atmosphere.mood-neutral { opacity: 0; }
+.emotion-glow-orb.mood-neutral { opacity: 0; }
+.emotion-indicator.mood-neutral { background: rgba(148,163,184,0.1); border-color: rgba(148,163,184,0.3); color: #94a3b8; }
+
+/* ── SIDEBAR EMOTION ── */
+.app .sidebar { transition: background 2s ease, border-color 2s ease; }
+.app.mood-joy .sidebar { background: rgba(251,191,36,0.04); border-right: 1px solid rgba(251,191,36,0.12); }
+.app.mood-sadness .sidebar { background: rgba(129,140,248,0.04); border-right: 1px solid rgba(129,140,248,0.12); }
+.app.mood-anger .sidebar { background: rgba(248,113,113,0.04); border-right: 1px solid rgba(248,113,113,0.12); }
+.app.mood-fear .sidebar { background: rgba(167,139,250,0.04); border-right: 1px solid rgba(167,139,250,0.12); }
+.app.mood-confusion .sidebar { background: rgba(163,230,53,0.04); border-right: 1px solid rgba(163,230,53,0.12); }
+.app.mood-neutral .sidebar { background: rgba(0,229,255,0.03); border-right: 1px solid rgba(0,229,255,0.08); }
+
+/* ── INPUT BORDER EMOTION ── */
+.chat-input-area { transition: border-top 2s ease, box-shadow 2s ease; border-top: 1.5px solid transparent; }
+.chat-input-area.mood-joy { border-top: 1.5px solid rgba(251,191,36,0.4); box-shadow: 0 -6px 24px rgba(251,191,36,0.08); }
+.chat-input-area.mood-sadness { border-top: 1.5px solid rgba(129,140,248,0.4); box-shadow: 0 -6px 24px rgba(129,140,248,0.08); }
+.chat-input-area.mood-anger { border-top: 1.5px solid rgba(248,113,113,0.4); box-shadow: 0 -6px 24px rgba(248,113,113,0.08); }
+.chat-input-area.mood-fear { border-top: 1.5px solid rgba(167,139,250,0.4); box-shadow: 0 -6px 24px rgba(167,139,250,0.08); }
+.chat-input-area.mood-confusion { border-top: 1.5px solid rgba(163,230,53,0.4); box-shadow: 0 -6px 24px rgba(163,230,53,0.08); }
+.chat-input-area.mood-neutral { border-top: 1.5px solid rgba(0,229,255,0.2); box-shadow: 0 -6px 24px rgba(0,229,255,0.04); }
+
+/* ── PARTICLE COLORS ── */
+.mood-particles-joy .particle { background: #fbbf24 !important; }
+.mood-particles-sadness .particle { background: #818cf8 !important; }
+.mood-particles-anger .particle { background: #f87171 !important; }
+.mood-particles-fear .particle { background: #a78bfa !important; }
+.mood-particles-neutral .particle { background: var(--cyan) !important; }
+.mood-particles-confusion .particle { background: #a3e635 !important; }/* ═══════════════════════════════════════════
+   EMOTION-AWARE DYNAMIC UI
+   ═══════════════════════════════════════════ */
+.app,
+.app .chat-container {
+  transition: all 2s ease;
+}
+
+.emotion-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 2.5s ease;
+}
+
+.emotion-glow-orb {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(150px);
+  transition: all 2.5s ease;
+}
+
+.emotion-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 1s ease;
+}
+
+.emotion-indicator-emoji { font-size: 15px; line-height: 1; }
+.emotion-indicator-label { font-size: 0.75rem; font-weight: 600; }
+
+/* ── JOY ── */
+.app.mood-joy { background: linear-gradient(180deg, #1a1608 0%, #2d1f0a 30%, #1a1205 100%) !important; }
+.emotion-atmosphere.mood-joy { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(251,191,36,0.2) 0%, transparent 60%); }
+.emotion-glow-orb.mood-joy { opacity: 1; background: rgba(251,191,36,0.25); }
+.emotion-indicator.mood-joy { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+
+/* ── SADNESS ── */
+.app.mood-sadness { background: linear-gradient(180deg, #0a0a1f 0%, #0d1030 30%, #080818 100%) !important; }
+.emotion-atmosphere.mood-sadness { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(129,140,248,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-sadness { opacity: 1; background: rgba(99,102,241,0.2); }
+.emotion-indicator.mood-sadness { background: rgba(129,140,248,0.15); border-color: rgba(129,140,248,0.4); color: #818cf8; }
+
+/* ── ANGER ── */
+.app.mood-anger { background: linear-gradient(180deg, #1a0808 0%, #2a0a0a 30%, #150505 100%) !important; }
+.emotion-atmosphere.mood-anger { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(239,68,68,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-anger { opacity: 1; background: rgba(239,68,68,0.2); }
+.emotion-indicator.mood-anger { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.4); color: #e0a9a9; }
+
+/* ── FEAR ── */
+.app.mood-fear { background: linear-gradient(180deg, #120a1f 0%, #1a0f30 30%, #0d0818 100%) !important; }
+.emotion-atmosphere.mood-fear { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(139,92,246,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-fear { opacity: 1; background: rgba(139,92,246,0.2); }
+.emotion-indicator.mood-fear { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #a78bfa; }
+
+/* ── CONFUSION ── */
+.app.mood-confusion { background: linear-gradient(180deg, #0a1508 0%, #0f2010 30%, #081205 100%) !important; }
+.emotion-atmosphere.mood-confusion { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(132,204,22,0.15) 0%, transparent 60%); }
+.emotion-glow-orb.mood-confusion { opacity: 1; background: rgba(132,204,22,0.18); }
+.emotion-indicator.mood-confusion { background: rgba(163,230,53,0.15); border-color: rgba(163,230,53,0.4); color: #a3e635; }
+
+/* ── NEUTRAL ── */
+.emotion-atmosphere.mood-neutral { opacity: 0; }
+.emotion-glow-orb.mood-neutral { opacity: 0; }
+.emotion-indicator.mood-neutral { background: rgba(148,163,184,0.1); border-color: rgba(148,163,184,0.3); color: #94a3b8; }
+
+/* ── SIDEBAR EMOTION ── */
+.app .sidebar { transition: background 2s ease, border-color 2s ease; }
+.app.mood-joy .sidebar { background: rgba(251,191,36,0.04); border-right: 1px solid rgba(251,191,36,0.12); }
+.app.mood-sadness .sidebar { background: rgba(129,140,248,0.04); border-right: 1px solid rgba(129,140,248,0.12); }
+.app.mood-anger .sidebar { background: rgba(248,113,113,0.04); border-right: 1px solid rgba(248,113,113,0.12); }
+.app.mood-fear .sidebar { background: rgba(167,139,250,0.04); border-right: 1px solid rgba(167,139,250,0.12); }
+.app.mood-confusion .sidebar { background: rgba(163,230,53,0.04); border-right: 1px solid rgba(163,230,53,0.12); }
+.app.mood-neutral .sidebar { background: rgba(0,229,255,0.03); border-right: 1px solid rgba(0,229,255,0.08); }
+
+/* ── INPUT BORDER EMOTION ── */
+.chat-input-area { transition: border-top 2s ease, box-shadow 2s ease; border-top: 1.5px solid transparent; }
+.chat-input-area.mood-joy { border-top: 1.5px solid rgba(251,191,36,0.4); box-shadow: 0 -6px 24px rgba(251,191,36,0.08); }
+.chat-input-area.mood-sadness { border-top: 1.5px solid rgba(129,140,248,0.4); box-shadow: 0 -6px 24px rgba(129,140,248,0.08); }
+.chat-input-area.mood-anger { border-top: 1.5px solid rgba(248,113,113,0.4); box-shadow: 0 -6px 24px rgba(248,113,113,0.08); }
+.chat-input-area.mood-fear { border-top: 1.5px solid rgba(167,139,250,0.4); box-shadow: 0 -6px 24px rgba(167,139,250,0.08); }
+.chat-input-area.mood-confusion { border-top: 1.5px solid rgba(163,230,53,0.4); box-shadow: 0 -6px 24px rgba(163,230,53,0.08); }
+.chat-input-area.mood-neutral { border-top: 1.5px solid rgba(0,229,255,0.2); box-shadow: 0 -6px 24px rgba(0,229,255,0.04); }
+
+/* ── PARTICLE COLORS ── */
+.mood-particles-joy .particle { background: #fbbf24 !important; }
+.mood-particles-sadness .particle { background: #818cf8 !important; }
+.mood-particles-anger .particle { background: #f87171 !important; }
+.mood-particles-fear .particle { background: #a78bfa !important; }
+.mood-particles-neutral .particle { background: var(--cyan) !important; }
+.mood-particles-confusion .particle { background: #a3e635 !important; }
