@@ -8,7 +8,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['Logo-soulsync.png'], // Make sure this exact file is in your public folder
+      manifestFilename: 'manifest.json', // 👈 THIS IS THE MAGIC FIX
+      includeAssets: ['Logo-soulsync.png'], 
       manifest: {
         short_name: 'Soul-Sync',
         name: 'Soul-Sync: Mental Wellness Companion',
