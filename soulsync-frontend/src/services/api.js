@@ -17,12 +17,14 @@ export const api = {
     if (!response.ok) throw new Error('Backend not responding');
     return response.json();
   },
+
   // Get app info
   info: async () => {
     const response = await fetch(`${API_BASE_URL}/info`);
     if (!response.ok) throw new Error('Could not fetch app info');
     return response.json();
   },
+
   // Start a new session
   startSession: async (preference = 'hybrid') => {
     const response = await fetch(`${API_BASE_URL}/session/start`, {
@@ -33,14 +35,15 @@ export const api = {
     if (!response.ok) throw new Error('Could not start session');
     return response.json();
   },
+
   // Get session info
   getSession: async (sessionId) => {
     const response = await fetch(`${API_BASE_URL}/session/${sessionId}`);
     if (!response.ok) throw new Error('Session not found');
     return response.json();
   },
-  // Send chat message — returns raw backend response, no transformation
-  // ✅ NOW ACCEPTS history (4th arg) so the bot remembers previous turns
+
+  // Send chat message
   chat: async (message, sessionId, preference = 'hybrid', history = []) => {
     const response = await fetch(`${API_BASE_URL}/chat`, {
       method: 'POST',
@@ -49,12 +52,13 @@ export const api = {
         message,
         session_id: sessionId,
         preference,
-        history,   // ✅ pass full conversation array — fixes the "bot forgets" bug
+        history,
       }),
     });
     if (!response.ok) throw new Error('Chat request failed');
     return response.json();
   },
+
   // Detect emotion only
   detectEmotion: async (message) => {
     const response = await fetch(`${API_BASE_URL}/emotion/detect`, {
@@ -65,10 +69,52 @@ export const api = {
     if (!response.ok) throw new Error('Emotion detection failed');
     return response.json();
   },
+
   // Get crisis resources
   getCrisisResources: async () => {
     const response = await fetch(`${API_BASE_URL}/crisis/resources`);
     if (!response.ok) throw new Error('Could not fetch crisis resources');
     return response.json();
+  },
+
+  // ─── Admin ───
+  admin: {
+    verify: async () => {
+      try {
+        const token = getAdminToken();
+        if (!token) return false;
+        const response = await fetch(`${API_BASE_URL}/admin/verify`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        return data.valid === true;
+      } catch {
+        return false;
+      }
+    },
+    login: async (password) => {
+      const response = await fetch(`${API_BASE_URL}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await response.json();
+      if (data.success && data.token) {
+        setAdminToken(data.token);
+        return true;
+      }
+      return false;
+    },
+    logout: () => {
+      clearAdminToken();
+    },
+    getAnalytics: async () => {
+      const token = getAdminToken();
+      const response = await fetch(`${API_BASE_URL}/admin/analytics`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch analytics');
+      return response.json();
+    }
   },
 };
