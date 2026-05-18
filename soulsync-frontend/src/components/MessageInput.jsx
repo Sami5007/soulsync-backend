@@ -235,27 +235,55 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
           disabled={disabled}
           title={isListening ? 'Stop listening' : 'Voice input'}
           aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+          style={{
+            backgroundColor: isListening ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
+            border: 'none',
+            borderRadius: '50%',
+            width: '38px',
+            height: '38px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            color: isListening ? '#ef4444' : '#94a3b8',
+            marginRight: '8px',
+            outline: 'none',
+            boxShadow: 'none'
+          }}
+          onMouseEnter={(e) => {
+            if (!isListening && !disabled) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.color = '#ffffff';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isListening && !disabled) {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#94a3b8';
+            }
+          }}
         >
           {isListening ? (
             <svg
-              width="22"
-              height="22"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#ef4444"
+              stroke="currentColor"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <rect x="9" y="2" width="6" height="13" rx="3" fill="#ef4444" />
+              <rect x="9" y="2" width="6" height="13" rx="3" fill="currentColor" />
               <path d="M19 10a7 7 0 01-14 0" />
               <line x1="12" y1="19" x2="12" y2="22" />
               <line x1="8" y1="22" x2="16" y2="22" />
             </svg>
           ) : (
             <svg
-              width="22"
-              height="22"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
