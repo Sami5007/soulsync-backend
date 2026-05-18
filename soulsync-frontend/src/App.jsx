@@ -523,7 +523,7 @@ export default function App() {
           </div>
         </header>
 
-        <div className="main-content">
+<div className="main-content">
           <Sidebar
             open={sidebarOpen}
             sessions={sessions}
@@ -532,11 +532,29 @@ export default function App() {
             onSelectSession={setActiveSessionId}
             isSending={isSending}
           />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <ChatContainer messages={messages} isSending={isSending} />
-            <div className={`chat-input-area ${emotionClass}`}>
-              <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
+          
+          {/* 1. Use the class we styled, not inline styles */}
+          <div className="chat-container">
+            
+            {/* 2. The Emotion Glow MUST go here to be trapped inside the chat area */}
+            {currentEmotion && (
+              <>
+                <div className={`emotion-atmosphere mood-${currentEmotion}`} />
+                <div className={`emotion-glow-orb mood-${currentEmotion}`} />
+              </>
+            )}
+
+            {/* 3. Wrap your UI in a relative div with zIndex: 2 so it sits ON TOP of the glow */}
+            <div className="chat-content-wrapper" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              
+              <ChatContainer messages={messages} isSending={isSending} />
+              
+              <div className={`chat-input-area ${emotionClass}`}>
+                <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
+              </div>
+
             </div>
+            
           </div>
         </div>
 
