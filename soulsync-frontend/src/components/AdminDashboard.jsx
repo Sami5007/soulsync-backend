@@ -3,7 +3,8 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, LineChart, Line, Legend
 } from 'recharts';
-import { api } from '../services/api';
+// ✅ IMPORT THE FLAT FUNCTIONS TO BYPASS MINIFICATION ERRORS
+import { getAdminStats, adminLogout } from '../services/api';
 import './AdminDashboard.css';
 
 // Color palette matching your glassmorphism theme
@@ -39,7 +40,8 @@ export const AdminDashboard = ({ onLogout }) => {
   const loadStats = useCallback(async (showLoader = false) => {
     if (showLoader) setLoading(true);
     try {
-      const data = await api.admin.getStats();
+      // ✅ CALL THE FLAT FUNCTION HERE
+      const data = await getAdminStats();
       setStats(data);
       setLastUpdated(new Date());
       setError('');
@@ -61,7 +63,8 @@ export const AdminDashboard = ({ onLogout }) => {
   }, [loadStats]);
 
   const handleLogout = async () => {
-    await api.admin.logout();
+    // ✅ CALL THE FLAT FUNCTION HERE
+    adminLogout();
     onLogout();
   };
 
