@@ -1002,23 +1002,26 @@ body {
   .pref-label { font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .main-content { 
-    width: 100% !important;        /* Changed from 100vw */
-    max-width: 100% !important;    /* Changed from 100vw */
-    margin-top: 50px; 
-    height: calc(100dvh - 50px);   /* Using dvh to handle mobile keyboards better */
-    padding-bottom: 0px; 
-  }
-   body, .app {
-    width: 100%;
-    overflow-x: hidden;
-  }
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 50px; 
+  height: calc(100dvh - 50px);
+  max-height: calc(100dvh - 50px);  /* ← add */
+  overflow: hidden;                  /* ← add */
+  padding-bottom: 0px; 
+}
+  body, .app {
+  width: 100%;
+  overflow: hidden;      /* ← change overflow-x to overflow */
+  height: 100dvh;        /* ← add */
+  max-height: 100dvh;    /* ← add */
+}
 .input-container { 
-    position: relative; /* Changed from fixed so mobile keyboards don't break it */
-    width: 100%; /* Replaces left/right 0 */
-    /* Added env() to the bottom padding to protect against the iPhone swipe bar */
-    padding: 0.75rem 0.75rem calc(0.25rem + env(safe-area-inset-bottom)) 0.75rem; 
-    background: transparent !important; 
-    z-index: 50; 
+  position: relative;
+  width: 100%;
+  padding: 0.75rem 0.75rem calc(env(safe-area-inset-bottom) + 0.75rem) 0.75rem;  /* ← fix bottom padding */
+  background: transparent !important; 
+  z-index: 50; 
 }
 
   .welcome-screen, .preference-overlay { position: fixed; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; align-items: flex-start; justify-content: center; padding: 20px 16px; }
