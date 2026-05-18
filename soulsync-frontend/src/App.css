@@ -1354,3 +1354,29 @@ body {
 .input-container, .chat-input-area {
     background: var(--bg-primary) !important;
 }
+/* ═══════════════════════════════════════════════════════════════
+   THEME PANEL FIX — LOCK SIDEBAR & INPUT TO NAVY BLUE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Force the Sidebar to stay dark navy blue */
+.sidebar, 
+.app .sidebar,
+.app[class*="mood-"] .sidebar {
+    background: #0a1628 !important;
+    background-color: #0a1628 !important;
+    border-right: 1px solid rgba(0, 229, 255, 0.12) !important;
+}
+
+/* 2. Force the Bottom Input Bar area to stay dark navy blue */
+.chat-input-area, 
+.input-container,
+.chat-input-area[class*="mood-"] {
+    background: #0a1628 !important;
+    background-color: #0a1628 !important;
+}
+
+/* 3. Keep text color readable inside the message textarea */
+.message-input {
+    background: transparent !important;
+    color: #f8fafc !important;
+}
