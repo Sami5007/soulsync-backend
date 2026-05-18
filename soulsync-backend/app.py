@@ -69,7 +69,7 @@ logger.info(f"LLM Client ready — model: {CLAUDE_MODEL}")
 # ADMIN ANALYTICS — SQLite Setup
 # ═══════════════════════════════════════════════════════════════
 ANALYTICS_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "analytics.db")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "soulsync2026")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "adminsoulsync099117")
 ACTIVE_ADMIN_TOKENS = {}
 ADMIN_TOKEN_TTL_SECONDS = 60 * 60 * 4
 
