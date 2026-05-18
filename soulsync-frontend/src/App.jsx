@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ChatContainer } from './components/ChatContainer';
 import { MessageInput } from './components/MessageInput';
 import { CrisisAlert } from './components/CrisisAlert';
+import { sendCrisisEmail } from './services/crisisEmail';
 import { CrisisConsentmodal } from './components/CrisisConsentmodal';
 import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
@@ -29,7 +30,6 @@ function Particles({ emotion }) {
       container.appendChild(p);
     }
   }, []);
-  // emotion class drives the particle color via CSS variable
   return <div className={`ambient-particles ${emotion ? `mood-particles-${emotion}` : ''}`} ref={containerRef} />;
 }
 
@@ -301,7 +301,6 @@ export default function App() {
   // ── API HANDLERS ──
   const startNewSession = async (pref) => {
     setLoading(true);
-    // Reset emotion atmosphere on new session
     setCurrentEmotion(null);
     try {
       const response = await api.startSession(pref);
@@ -320,35 +319,25 @@ export default function App() {
       setLoading(false);
     }
   };
- 
-  // ✅ FIXED: Now passes the actual conversation history to the backend
-  // so the bot remembers prior turns instead of treating each message as new.
+
   const handleSendMessage = async (text) => {
     if (isSending || !activeSessionId) return;
     setIsSending(true);
 
     const userMsg = { id: Date.now(), type: 'user', text };
-
-    // Build the up-to-date conversation list for THIS session
-    // (using local var because setSessions is async and won't reflect immediately)
     const currentMessages = activeSession ? activeSession.messages : [];
     const updatedMessages = [...currentMessages, userMsg];
 
-    // Optimistically render the user message
     setSessions(prev => prev.map(s =>
       s.id === activeSessionId ? { ...s, messages: updatedMessages } : s
     ));
 
-    // Transform local message format → backend format
-    // Backend expects: { sender: 'user' | 'bot', text: '...' }
-    // Local format uses: { type: 'user' | 'bot', text: '...' }
     const historyForAPI = updatedMessages.map(m => ({
       sender: m.type === 'user' ? 'user' : 'bot',
       text: m.text
     }));
 
     try {
-      // ✅ Pass historyForAPI as 4th arg so Grok sees prior context
       const response = await api.chat(text, activeSessionId, preference, historyForAPI);
 
       const botMsg = {
@@ -363,14 +352,23 @@ export default function App() {
         s.id === activeSessionId ? { ...s, messages: [...s.messages, botMsg] } : s
       ));
 
+      // ✅ EMOTION-AWARE UI: Update the atmosphere on every bot response
+      if (response.emotion) {
+        setCurrentEmotion(response.emotion);
+      }
+
       if (response.crisis && response.crisis.is_crisis) {
-        sendCrisisEmail(
-          text,
-          response.crisis.severity,
-          response.emotion,
-          updatedMessages
-        );
-        setCrisisAlert(response.crisis);
+        setCrisisAlert(null);
+        setPendingCrisis(null);
+        setTimeout(() => {
+          setCrisisAlert(response.crisis);
+          setPendingCrisis({
+            crisisData: response.crisis,
+            userMessage: text,
+            emotion: response.emotion,
+            history: updatedMessages,
+          });
+        }, 50);
       }
     } catch (e) {
       console.error("Chat error:", e);
@@ -505,15 +503,11 @@ export default function App() {
   //  RENDER: CHAT INTERFACE — with emotion-aware atmosphere
   // ══════════════════════════════════════════
 
-  // Build the emotion CSS class for the wrapper
   const emotionClass = currentEmotion ? `mood-${currentEmotion}` : '';
 
   return (
     <>
-      {/* ─── EMOTION ATMOSPHERE LAYER (behind everything) ─── */}
       <div className={`emotion-atmosphere ${emotionClass}`} />
-
-      {/* ─── EMOTION GLOW ORB (floating accent light) ─── */}
       <div className={`emotion-glow-orb ${emotionClass}`} />
 
       <Particles emotion={currentEmotion} />
@@ -528,19 +522,20 @@ export default function App() {
             </div>
           </div>
           <div className="header-controls">
-            {/* ─── EMOTION INDICATOR (shows current mood as a small badge) ─── */}
-{currentEmotion && (
-  <div className={`emotion-indicator ${emotionClass}`}>
-    <span className="emotion-indicator-emoji">
-      {{ joy: '😄', sadness: '😢', anger: '😠', fear: '😨', confusion: '😕', neutral: '😐' }[currentEmotion] || '🧠'}
-    </span>
-    <span className="emotion-indicator-label">{currentEmotion}</span>
-  </div>
-)}
+            {currentEmotion && (
+              <div className={`emotion-indicator ${emotionClass}`}>
+                <span className="emotion-indicator-emoji">
+                  {{ joy: '😄', sadness: '😢', anger: '😠', fear: '😨', confusion: '😕', neutral: '😐' }[currentEmotion] || '🧠'}
+                </span>
+                <span className="emotion-indicator-label">{currentEmotion}</span>
+              </div>
+            )}
             <div className="control-button" onClick={() => setSidebarOpen(!sidebarOpen)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </div>
-
+            <div className="control-button" onClick={toggleTheme}>
+              {theme === 'light' ? "🌙" : "☀️"}
+            </div>
             <PreferenceSelector preference={preference} onPreferenceChange={setPreference} />
           </div>
         </header>
@@ -556,10 +551,10 @@ export default function App() {
           />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <ChatContainer messages={messages} isSending={isSending} />
-  <div className={`chat-input-area ${emotionClass}`}>
-    <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
-  </div>
-</div>
+            <div className={`chat-input-area ${emotionClass}`}>
+              <MessageInput onSendMessage={handleSendMessage} disabled={!activeSessionId || isSending} />
+            </div>
+          </div>
         </div>
 
         {crisisAlert && (
