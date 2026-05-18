@@ -156,6 +156,8 @@ init_analytics_db()
 
 
 # --- CRISIS EMAIL SENDER ---
+# ✅ Kept for /api/crisis/send-email endpoint (legacy support), but
+# email is now primarily sent from the frontend via Web3Forms directly.
 def send_crisis_email(user_message, severity, emotion, history):
     WEB3FORMS_KEY = os.getenv("WEB3FORMS_KEY")
     COUNSELOR_EMAIL = os.getenv("COUNSELOR_EMAIL")
@@ -525,11 +527,10 @@ Rules:
             },
             json={
                 "model": CLAUDE_MODEL,
-                "system": system_prompt, # ✅ System prompt passed correctly here
-                "messages": messages,    # ✅ Clean array with only user/assistant
+                "system": system_prompt,
+                "messages": messages,
                 "temperature": 0.65 if is_casual else 0.70,
                 "max_tokens": 280,
-            
             },
             timeout=10
         )
@@ -678,11 +679,9 @@ def chat():
         # ─── HYBRID PIPELINE ───
         if crisis_result["is_crisis"]:
             response_text = get_crisis_response(crisis_result["severity"])
-            threading.Thread(
-                target=send_crisis_email,
-                args=(message, crisis_result["severity"], emotion, conversation_history),
-                daemon=True
-            ).start()
+            # ✅ CHANGE 1: Removed threading.Thread email call here.
+            # Crisis email is now sent from the frontend via Web3Forms
+            # (server-side Web3Forms calls are blocked on the free plan).
         else:
             response_text = get_grok_response(
                 message=message,
@@ -762,16 +761,90 @@ def admin_verify():
     return jsonify({"valid": require_admin(request)}), 200
 
 
+# ✅ CHANGE 2: Replaced raw row dump with aggregated stats the dashboard expects
 @app.route('/api/admin/analytics', methods=['GET'])
 def admin_analytics():
     if not require_admin(request):
         return jsonify({"error": "Unauthorized"}), 401
     try:
         with get_db() as conn:
-            rows = conn.execute("SELECT * FROM chat_analytics ORDER BY timestamp DESC LIMIT 200").fetchall()
-            data = [dict(row) for row in rows]
-        return jsonify({"analytics": data}), 200
+            # ── Overview ──
+            total_messages = conn.execute("SELECT COUNT(*) FROM chat_analytics").fetchone()[0]
+            total_sessions = conn.execute("SELECT COUNT(DISTINCT session_id_short) FROM chat_analytics").fetchone()[0]
+            total_crises   = conn.execute("SELECT COUNT(*) FROM chat_analytics WHERE is_crisis=1").fetchone()[0]
+            today          = datetime.now().strftime('%Y-%m-%d')
+            messages_today = conn.execute(
+                "SELECT COUNT(*) FROM chat_analytics WHERE DATE(timestamp)=?", (today,)
+            ).fetchone()[0]
+            avg_response   = conn.execute("SELECT AVG(response_time_ms) FROM chat_analytics").fetchone()[0]
+
+            # ── Emotion Distribution ──
+            emotion_rows = conn.execute("""
+                SELECT emotion, COUNT(*) as count
+                FROM chat_analytics
+                WHERE emotion IS NOT NULL
+                GROUP BY emotion ORDER BY count DESC
+            """).fetchall()
+
+            # ── Crisis Breakdown ──
+            crisis_rows = conn.execute("""
+                SELECT crisis_severity as severity, COUNT(*) as count
+                FROM chat_analytics
+                WHERE is_crisis=1 AND crisis_severity IS NOT NULL
+                GROUP BY crisis_severity
+            """).fetchall()
+
+            # ── Hourly Activity (last 7 days) ──
+            seven_days_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+            hourly_rows = conn.execute("""
+                SELECT hour, COUNT(*) as count
+                FROM chat_analytics
+                WHERE DATE(timestamp) >= ?
+                GROUP BY hour ORDER BY hour
+            """, (seven_days_ago,)).fetchall()
+
+            # ── Preference Breakdown ──
+            pref_rows = conn.execute("""
+                SELECT preference, COUNT(*) as count
+                FROM chat_analytics
+                WHERE preference IS NOT NULL
+                GROUP BY preference
+            """).fetchall()
+
+            # ── Daily Activity (last 7 days) ──
+            daily_rows = conn.execute("""
+                SELECT DATE(timestamp) as day, COUNT(*) as count
+                FROM chat_analytics
+                WHERE DATE(timestamp) >= ?
+                GROUP BY DATE(timestamp) ORDER BY day
+            """, (seven_days_ago,)).fetchall()
+
+            # ── Recent Crises ──
+            recent_crisis_rows = conn.execute("""
+                SELECT timestamp, session_id_short as session, emotion, crisis_severity as severity
+                FROM chat_analytics
+                WHERE is_crisis=1
+                ORDER BY timestamp DESC LIMIT 20
+            """).fetchall()
+
+        return jsonify({
+            "overview": {
+                "total_messages":  total_messages,
+                "total_sessions":  total_sessions,
+                "total_crises":    total_crises,
+                "messages_today":  messages_today,
+                "avg_response_ms": round(avg_response or 0)
+            },
+            "emotion_distribution": [dict(r) for r in emotion_rows],
+            "crisis_breakdown":     [dict(r) for r in crisis_rows],
+            "hourly_activity":      [dict(r) for r in hourly_rows],
+            "preference_breakdown": [dict(r) for r in pref_rows],
+            "daily_activity":       [dict(r) for r in daily_rows],
+            "recent_crises":        [dict(r) for r in recent_crisis_rows],
+        }), 200
+
     except Exception as e:
+        logger.error(f"Analytics error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
