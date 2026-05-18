@@ -104,93 +104,90 @@ export const ChatContainer = ({ messages, isSending }) => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
 
-  // Empty State (Welcome Message)
+  // ── EMPTY STATE (Welcome Message) ──
+  // FIX: Removed the wrapping <div className="chat-container"> from both
+  // return statements. The .chat-container already exists in App.jsx, so
+  // nesting another one here was breaking the flex layout and causing the
+  // input bar to scroll away instead of staying pinned at the bottom.
   if (!messages || messages.length === 0) {
     return (
-      <div className="chat-container">
-        <div className="messages">
-          <div className="message-wrapper bot">
-             <div className="message-content-group">
-                <div className="message bot">
-                  Welcome to Soul-Sync. I'm here to walk alongside you through
-                  whatever you're experiencing. This is a safe, judgment-free space.
+      <div className="messages">
+        <div className="message-wrapper bot">
+           <div className="message-content-group">
+              <div className="message bot">
+                Welcome to Soul-Sync. I'm here to walk alongside you through
+                whatever you're experiencing. This is a safe, judgment-free space.
+              </div>
+              <div className="bot-metadata">
+                <div className="emotion-badge">
+                  <span className="emotion-dot" style={{ background: '#9db4c0' }} />
+                  <span className="emotion-label">Welcoming</span>
                 </div>
-                <div className="bot-metadata">
-                  <div className="emotion-badge">
-                    <span className="emotion-dot" style={{ background: '#9db4c0' }} />
-                    <span className="emotion-label">Welcoming</span>
-                  </div>
-                </div>
-             </div>
-          </div>
+              </div>
+           </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="chat-container">
-      <div className="messages">
-        {messages.map((msg, index) => (
-          <div key={msg.id || `msg-${index}`} style={{ display: 'contents' }}>
-            
-            {/* USER MESSAGE (Aligns Right) */}
-            {msg.type === 'user' && (
-              <div className="message-wrapper user">
-                <div className="message-content-group">
-                  <div className="message user">{msg.text}</div>
-                </div>
+    <div className="messages">
+      {messages.map((msg, index) => (
+        <div key={msg.id || `msg-${index}`} style={{ display: 'contents' }}>
+          
+          {/* USER MESSAGE (Aligns Right) */}
+          {msg.type === 'user' && (
+            <div className="message-wrapper user">
+              <div className="message-content-group">
+                <div className="message user">{msg.text}</div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* LEGACY TYPING INDICATOR (Replaced with new one just in case it triggers via array) */}
-            {msg.type === 'typing' && (
-              <TypingIndicator />
-            )}
+          {/* LEGACY TYPING INDICATOR (Replaced with new one just in case it triggers via array) */}
+          {msg.type === 'typing' && (
+            <TypingIndicator />
+          )}
 
-            {/* BOT MESSAGE (Aligns Left) */}
-            {msg.type === 'bot' && (
-              <div className="message-wrapper bot">
-                <div className="message-content-group">
-                  <div className="message bot">
-    <ReactMarkdown>{msg.text}</ReactMarkdown>
-</div>
-                  
-                  {/* Metadata sits cleanly underneath the left-aligned bubble */}
-                  <div className="bot-metadata">
-
-
-                    {msg.crisis?.is_crisis && (
-                      <div style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #f87171', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, marginTop: '4px' }}>
-                        ⚠️ {msg.crisis.severity} concern detected
-                      </div>
-                    )}
-
-                    <ShapExplainability shapValues={msg.shap_values} />
-                  </div>
+          {/* BOT MESSAGE (Aligns Left) */}
+          {msg.type === 'bot' && (
+            <div className="message-wrapper bot">
+              <div className="message-content-group">
+                <div className="message bot">
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
-              </div>
-            )}
-
-            {/* ERROR MESSAGE */}
-            {msg.type === 'error' && (
-              <div className="message-wrapper bot">
-                 <div className="message-content-group">
-                    <div className="message" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>
-                      ⚠️ {msg.text}
+                
+                {/* Metadata sits cleanly underneath the left-aligned bubble */}
+                <div className="bot-metadata">
+                  {msg.crisis?.is_crisis && (
+                    <div style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #f87171', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, marginTop: '4px' }}>
+                      ⚠️ {msg.crisis.severity} concern detected
                     </div>
-                 </div>
+                  )}
+                  <ShapExplainability shapValues={msg.shap_values} />
+                </div>
               </div>
-            )}
+            </div>
+          )}
 
-          </div>
-        ))}
-        
-        {/* NEW: Displays the animated avatar when the backend is processing */}
-        {isSending && <TypingIndicator />}
+          {/* ERROR MESSAGE */}
+          {msg.type === 'error' && (
+            <div className="message-wrapper bot">
+               <div className="message-content-group">
+                  <div className="message" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>
+                    ⚠️ {msg.text}
+                  </div>
+               </div>
+            </div>
+          )}
 
-        <div ref={endRef} />
-      </div>
+        </div>
+      ))}
+      
+      {/* NEW: Displays the animated avatar when the backend is processing */}
+      {isSending && <TypingIndicator />}
+
+      <div ref={endRef} />
     </div>
   );
 };
