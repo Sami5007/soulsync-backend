@@ -545,8 +545,7 @@ export default function App() {
             )}
 
             {/* 3. Wrap your UI in a relative div with zIndex: 2 so it sits ON TOP of the glow */}
-            <div className="chat-content-wrapper" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-              
+<div className="chat-content-wrapper" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>              
               <ChatContainer messages={messages} isSending={isSending} />
               
               <div className={`chat-input-area ${emotionClass}`}>
