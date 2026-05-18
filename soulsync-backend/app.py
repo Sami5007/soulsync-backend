@@ -526,7 +526,7 @@ Rules:
                 "messages": messages,    # ✅ Clean array with only user/assistant
                 "temperature": 0.65 if is_casual else 0.70,
                 "max_tokens": 280,
-                "top_p": 0.9
+            
             },
             timeout=10
         )
