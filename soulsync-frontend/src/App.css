@@ -1083,9 +1083,8 @@ body {
 .emotion-indicator-label { font-size: 0.75rem; font-weight: 600; }
 
 /* ── ATMOSPHERE EFFECT ORBS & INDICATORS (BACKGROUND AND UI ACCENTS ONLY) ── */
-.emotion-atmosphere.mood-joy { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(251,191,36,0.2) 0%, transparent 60%); }
-.emotion-glow-orb.mood-joy { opacity: 1; background: rgba(251,191,36,0.25); }
-.emotion-indicator.mood-joy { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+.emotion-atmosphere.mood-anger { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(239,68,68,0.18) 0%, transparent 60%); }
+.emotion-glow-orb.mood-anger { opacity: 1; background: rgba(239,68,68,0.2); }
 
 .emotion-atmosphere.mood-sadness { opacity: 1; background: radial-gradient(ellipse at 50% 20%, rgba(129,140,248,0.18) 0%, transparent 60%); }
 .emotion-glow-orb.mood-sadness { opacity: 1; background: rgba(99,102,241,0.2); }
