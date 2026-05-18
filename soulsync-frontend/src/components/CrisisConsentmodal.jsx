@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import './CrisisConsentModal.css';
+import './CrisisConsentmodal.css';
 
-export const CrisisConsentModal = ({ crisisData, onConsent, onDecline }) => {
+export const CrisisConsentmodal = ({ crisisData, onConsent, onDecline }) => {
   const [sending, setSending] = useState(false);
 
   const severityConfig = {
