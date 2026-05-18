@@ -534,9 +534,17 @@ export default function App() {
           />
           
           {/* 1. Use the class we styled, not inline styles */}
-         {/* REPLACE WITH THIS: */}
-<div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
-
+         
+{/* REPLACE WITH: */}
+<div style={{ 
+  flex: 1, 
+  display: 'flex', 
+  flexDirection: 'column', 
+  overflow: 'hidden', 
+  position: 'relative',
+  height: '100%',        /* ← add this */
+  maxHeight: '100%'      /* ← add this */
+}}>
   {currentEmotion && (
     <>
       <div className={`emotion-atmosphere mood-${currentEmotion}`} />
@@ -545,8 +553,15 @@ export default function App() {
   )}
 
   {/* Messages — scrolls */}
-  <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, position: 'relative', zIndex: 2 }}>
-    <ChatContainer messages={messages} isSending={isSending} />
+<div style={{ 
+  flex: 1, 
+  overflowY: 'auto', 
+  overflowX: 'hidden', 
+  minHeight: 0,          /* ← keep this */
+  maxHeight: '100%',     /* ← add this */
+  position: 'relative', 
+  zIndex: 2 
+}}>    <ChatContainer messages={messages} isSending={isSending} />
   </div>
 
   {/* Input — pinned at bottom */}
