@@ -265,16 +265,15 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  useEffect(() => {
-    if (route === '#admin') {
-      setAdminChecking(true);
-      // ✅ FIXED: Calls the flat function instead of api.admin.verify()
-      adminVerify().then(valid => {
-        setAdminAuthed(valid);
-        setAdminChecking(false);
-      });
-    }
-  }, [route]);
+useEffect(() => {
+  if (route === '#admin') {
+    setAdminChecking(true);
+    adminVerify()
+      .then(valid => setAdminAuthed(valid))
+      .catch(() => setAdminAuthed(false))
+      .finally(() => setAdminChecking(false)); // always unblocks
+  }
+}, [route]);
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
