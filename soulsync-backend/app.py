@@ -469,8 +469,9 @@ CONTEXT MEMORY RULES (CRITICAL):
 - NEVER act like each message is a brand-new conversation.
 
 STYLE:
-Speak naturally and casually in clear English. Keep replies short (2-4 sentences).
-Reference what the user just said. Never sound like a therapist."""
+Speak naturally and casually in clear English. 
+STRICT LENGTH: Maximum 2 or 5 short sentences. Be direct and concise. 
+Reference what the user just said. Never sound like a therapist. Never sound like a therapist."""
     else:
         base_response = get_base_response(emotion, preference)
         if not base_response:
@@ -491,10 +492,12 @@ weaving in the conversation context above:
 {base_response}
 
 Rules:
+Rules:
 - First acknowledge what user said (and reference earlier turns if relevant).
 - Keep exact meaning of base response.
 - Sound like a real friend who has been listening throughout.
-- Max 200 words."""
+- STRICT LENGTH LIMIT: Maximum 2 to 3 short sentences.
+- Be incredibly concise and straight to the point. Do not write essays or long paragraphs."""
 
     # ✅ FIXED: Initialize an empty array. No system roles here!
     messages = []
