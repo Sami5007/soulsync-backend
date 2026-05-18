@@ -9,6 +9,8 @@ import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
 // ✅ Import the api object alongside adminVerify
 import { api, adminVerify } from './services/api';
+// ✅ CHANGE 1: Re-added sendCrisisEmail (calls Web3Forms from browser — free plan compatible)
+import { sendCrisisEmail } from './services/crisisEmail';
 import './App.css';
 
 /**
@@ -265,15 +267,15 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-useEffect(() => {
-  if (route === '#admin') {
-    setAdminChecking(true);
-    adminVerify()
-      .then(valid => setAdminAuthed(valid))
-      .catch(() => setAdminAuthed(false))
-      .finally(() => setAdminChecking(false)); // always unblocks
-  }
-}, [route]);
+  useEffect(() => {
+    if (route === '#admin') {
+      setAdminChecking(true);
+      adminVerify()
+        .then(valid => setAdminAuthed(valid))
+        .catch(() => setAdminAuthed(false))
+        .finally(() => setAdminChecking(false));
+    }
+  }, [route]);
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
@@ -358,6 +360,9 @@ useEffect(() => {
       }
 
       if (response.crisis && response.crisis.is_crisis) {
+        // ✅ CHANGE 2: Send crisis email from browser (Web3Forms free plan compatible)
+        sendCrisisEmail(text, response.crisis.severity, response.emotion, updatedMessages);
+
         setCrisisAlert(null);
         setPendingCrisis(null);
         setTimeout(() => {
@@ -378,34 +383,14 @@ useEffect(() => {
   };
 
   // ── CRISIS CONSENT HANDLERS ──
+  // Note: handleCrisisConsent now also uses sendCrisisEmail from the browser
+  // instead of calling the backend endpoint (which used Web3Forms server-side)
   const handleCrisisConsent = async () => {
     if (!pendingCrisis) return;
-
     const { userMessage, crisisData, emotion, history } = pendingCrisis;
-
-    try {
-      const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-        ? 'http://localhost:5000/api'
-        : 'https://samikals-soulsyncai.hf.space/api';
-
-      await fetch(`${API_BASE}/crisis/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMessage,
-          severity: crisisData.severity,
-          emotion: emotion,
-          history: history.slice(-5).map(m => ({
-            sender: m.type === 'user' ? 'user' : 'bot',
-            text: m.text
-          }))
-        }),
-      });
-      console.log('[Crisis] Counselor email sent with user consent');
-    } catch (err) {
-      console.error('[Crisis] Failed to send email:', err);
-    }
-
+    // ✅ CHANGE 2 (cont): Use frontend sendCrisisEmail instead of backend fetch
+    await sendCrisisEmail(userMessage, crisisData.severity, emotion, history);
+    console.log('[Crisis] Counselor email sent with user consent');
     setPendingCrisis(null);
   };
 
