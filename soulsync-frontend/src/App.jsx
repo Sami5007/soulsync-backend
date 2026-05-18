@@ -571,7 +571,7 @@ export default function App() {
         )}
 
         {pendingCrisis && (
-          <CrisisConsentModal
+          <CrisisConsentmodal
             crisisData={pendingCrisis.crisisData}
             onConsent={handleCrisisConsent}
             onDecline={handleCrisisDecline}
