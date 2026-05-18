@@ -7,7 +7,7 @@ import { PreferenceSelector } from './components/PreferenceSelector';
 import { PreferenceModal } from './components/PreferenceModal';
 import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
-import { api } from './services/api';
+import { adminVerify } from './services/api';
 import './App.css';
 
 /**
