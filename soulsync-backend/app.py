@@ -25,7 +25,12 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 # This tells Flask to let Vercel talk to it!
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app, resources={r"/api/*": {"origins": [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://soulsync-frontend-blue.vercel.app",
+    "*"
+]}})
 
 
 print("Loading Lightweight Emotion model...")
