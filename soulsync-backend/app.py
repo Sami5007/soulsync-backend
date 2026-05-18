@@ -496,7 +496,8 @@ Rules:
 - Sound like a real friend who has been listening throughout.
 - Max 200 words."""
 
-    messages = [{"role": "system", "content": system_prompt}]
+    # ✅ FIXED: Initialize an empty array. No system roles here!
+    messages = []
 
     if conversation_history:
         for turn in conversation_history[-10:]:
@@ -521,8 +522,8 @@ Rules:
             },
             json={
                 "model": CLAUDE_MODEL,
-                "system": system_prompt,
-                "messages": messages,
+                "system": system_prompt, # ✅ System prompt passed correctly here
+                "messages": messages,    # ✅ Clean array with only user/assistant
                 "temperature": 0.65 if is_casual else 0.70,
                 "max_tokens": 280,
                 "top_p": 0.9
@@ -545,7 +546,6 @@ Rules:
     except Exception as e:
         logger.error(f"Claude error: {e}")
         return get_fallback_response(emotion, preference) if not is_casual else "I'm right here, friend."
-
 
 def get_fallback_response(emotion, preference):
     if not RESPONSES or emotion not in RESPONSES:
