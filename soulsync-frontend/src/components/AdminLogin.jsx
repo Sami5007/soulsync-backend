@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { api } from '../services/api';
+// ✅ 1. IMPORT THE FLAT FUNCTION INSTEAD OF 'api'
+import { adminLogin } from '../services/api';
 import './AdminLogin.css';
 
 export const AdminLogin = ({ onLoginSuccess, onCancel }) => {
@@ -17,8 +18,14 @@ export const AdminLogin = ({ onLoginSuccess, onCancel }) => {
     setLoading(true);
 
     try {
-      await api.admin.login(password);
-      onLoginSuccess();
+      // ✅ 2. CALL THE FLAT FUNCTION AND CHECK IF IT WORKED
+      const success = await adminLogin(password);
+      
+      if (success) {
+        onLoginSuccess();
+      } else {
+        throw new Error('Invalid password');
+      }
     } catch (err) {
       setError(err.message || 'Invalid password');
       setShake(true);
