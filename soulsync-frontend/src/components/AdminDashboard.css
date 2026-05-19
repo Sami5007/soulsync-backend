@@ -103,12 +103,19 @@
 }
 
 /* ─── BODY ─── */
+/* ✅ KEEP ONLY THIS SINGLE ENTRY */
 .admin-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
   padding: 2rem;
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding-bottom: 3rem;
-  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: auto !important; /* Forces the mobile browser to allow default finger swipes */
 }
 
 /* ─── STAT CARDS ─── */
