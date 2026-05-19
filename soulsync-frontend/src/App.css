@@ -70,6 +70,10 @@ body {
 /* REPLACE WITH: */
 .app { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary) !important; }
 
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
 
 /* ─── ANIMATIONS ─── */
 @keyframes fadeUp {
