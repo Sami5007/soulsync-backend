@@ -141,7 +141,7 @@ export const AdminDashboard = ({ onLogout }) => {
         </div>
       </header>
 
-      <div className="admin-body">
+      <div className="admin-body" style={{ touchAction: 'auto' }}>
         {/* ─── OVERVIEW STAT CARDS ─── */}
         <div className="admin-stat-grid">
           <StatCard
