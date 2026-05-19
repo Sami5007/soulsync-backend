@@ -27,17 +27,21 @@
 }
 
 /* ─── BODY (This handles all scrolling now) ─── */
+/* ─── BODY (This handles all scrolling on Desktop & Mobile) ─── */
 .admin-body {
-  flex: 1;                  /* Expand smoothly to fill everything below the header */
-  overflow-y: auto;         /* Locks all scroll state safely away from auto-refresh renders */
+  flex: 1;                            /* Expand to fill empty space under header */
+  overflow-y: auto;                   /* Keeps layout safe from update re-renders */
+  min-height: 0;                      /* CRITICAL FOR PHONES: lets layout modules know where to scroll */
   padding: 2rem;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   padding-bottom: 3rem;
-  -webkit-overflow-scrolling: touch; /* Ensures smooth scrolling behavior across mobile browsers */
+  -webkit-overflow-scrolling: touch;   /* Smooth physics gesture engine on iOS */
   overscroll-behavior-y: contain;
+  touch-action: auto !important;       /* CRITICAL FOR PHONES: unlocks your default mobile swipe options */
 }
+
 
 .admin-header-left { display: flex; align-items: center; }
 
