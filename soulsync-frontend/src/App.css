@@ -798,10 +798,6 @@ body {
     max-height: none !important;
   }
 
-  body:has(.admin-dashboard) .app {
-    display: none !important;
-  }
-
   .input-container {
     position: relative;
     width: 100%;
@@ -971,27 +967,54 @@ div.input-container, .input-container, [class*="input-container"] {
 
 .chat-input-area { flex-shrink: 0; }
 
-
 /* ═══════════════════════════════════════════════════════════════
-   ADMIN DASHBOARD — SCROLL FIX (DESKTOP + MOBILE)
+   ✅ ADD THIS COMPLETE UNIFIED FIX TO THE VERY BOTTOM OF APP.CSS
    ═══════════════════════════════════════════════════════════════ */
 
-/* Admin dashboard desktop scroll handled by html/root :has() rules above */
+/* 1. Viewport Lock: Stops the outer mobile screen from resetting scroll positions */
+body:has(.admin-dashboard),
+#root:has(.admin-dashboard) {
+  height: 100vh !important;
+  height: 100dvh !important;
+  width: 100vw !important;
+  overflow: hidden !important;
+}
 
+/* 2. Framework Wrapper: Unlocks the hidden container so it mounts on phones */
+.app:has(.admin-dashboard) {
+  display: flex !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* 3. Panel Container Frame */
+.admin-dashboard {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 4. Complete Mobile Touch Engine Restoration */
 @media (max-width: 768px) {
   .admin-dashboard {
-  height: auto !important;
-  min-height: 100dvh;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y !important;
-}
-.admin-body {
-  padding-bottom: 4rem;
-  touch-action: pan-y !important;
-}
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    touch-action: auto !important; 
+  }
+
   .admin-body {
-    padding-bottom: 4rem;
+    flex: 1 !important;
+    overflow-y: auto !important;   /* Safely locks scrolling to this layout element */
+    min-height: 0 !important;      /* Forces mobile engines to calculate panel heights */
+    -webkit-overflow-scrolling: touch !important; /* Butter-smooth momentum swipes on phones */
+    touch-action: auto !important; /* Overrides the frozen pan-y finger lock */
+    overscroll-behavior-y: contain !important;
+    padding: 0.75rem !important;
+    padding-bottom: 5rem !important;
   }
 }
+
