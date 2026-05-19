@@ -503,22 +503,8 @@ export default function App() {
             isSending={isSending}
           />
 
-          {/* ── CHAT AREA — this is the key fix ── */}
-          {/* 
-            THE FIX: 
-            - This outer div is a fixed-height flex column (fills remaining space)
-            - The messages scroller gets flex:1 + minHeight:0 so it shrinks properly
-            - The input wrapper gets flexShrink:0 so it NEVER moves
-            - overflow:hidden on outer prevents any child from escaping
-          */}
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            overflow: 'hidden',
-            position: 'relative',
-          }}>
+          {/* ── CHAT AREA ── */}
+          <div className="chat-container">
 
             {/* Emotion glow trapped inside */}
             {currentEmotion && (
@@ -528,24 +514,11 @@ export default function App() {
               </>
             )}
 
-            {/* Messages scroll area — expands and scrolls */}
-            <div style={{
-              flex: 1,
-              minHeight: 0,        /* THE critical line — without this flex won't shrink */
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              position: 'relative',
-              zIndex: 2,
-            }}>
+            <div className="chat-content-wrapper">
               <ChatContainer messages={messages} isSending={isSending} />
             </div>
 
-            {/* Input bar — pinned, never moves */}
-            <div style={{
-              flexShrink: 0,       /* Never shrink, never push */
-              position: 'relative',
-              zIndex: 10,
-            }}>
+            <div className="chat-input-area">
               <MessageInput
                 onSendMessage={handleSendMessage}
                 disabled={!activeSessionId || isSending}
