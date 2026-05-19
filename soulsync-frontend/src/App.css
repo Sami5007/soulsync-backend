@@ -68,24 +68,12 @@ body {
 }
 #root { height: 100%; }
 
-/* ── Admin route: unlock html/root/body height ── */
-html:has(.admin-dashboard) {
-  height: auto !important;
-  overflow-y: auto !important;
-}
-
+/* Admin desktop scroll fix */
 #root:has(.admin-dashboard) {
   height: auto !important;
   min-height: 100vh;
-  overflow-y: auto !important;
+  overflow: visible;
 }
-
-body:has(.admin-dashboard) {
-  height: auto !important;
-  overflow-y: auto !important;
-  overscroll-behavior-y: contain !important;
-}
-
 .app { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary) !important; }
 
 
