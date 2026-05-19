@@ -101,24 +101,32 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
       setIsListening(false);
     };
 
-    recognition.onend = () => {
-      // If the user didn't manually stop, restart automatically
-      // (browsers force-end the session every ~60s even with continuous=true)
-      if (!userStoppedRef.current) {
-        try {
-          recognition.start();
-          return;
-        } catch (err) {
-          console.warn('[VoiceInput] Auto-restart failed:', err);
-        }
-      }
+recognition.onend = () => {
+  if (!userStoppedRef.current) {
+    try {
+      // ✅ THE FIX: before restarting, promote accumulated voice
+      // text into the prefix and wipe the buffer clean.
+      // New session starts fresh — no old results to double.
+      const accumulated = [prefixRef.current, finalBufferRef.current]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+      prefixRef.current = accumulated;
+      finalBufferRef.current = '';   // ← reset so new session doesn't replay
 
-      // User stopped OR restart failed — actually end the session
-      setIsListening(false);
-      finalBufferRef.current = '';
-      prefixRef.current = '';
-      userStoppedRef.current = false;
-    };
+      recognition.start();
+      return;
+    } catch (err) {
+      console.warn('[VoiceInput] Auto-restart failed:', err);
+    }
+  }
+
+  // User stopped OR restart failed — end session cleanly
+  setIsListening(false);
+  finalBufferRef.current = '';
+  prefixRef.current = '';
+  userStoppedRef.current = false;
+};
 
     recognitionRef.current = recognition;
 
