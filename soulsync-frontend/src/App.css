@@ -53,6 +53,7 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; height: 100%; }
+html:has(.admin-dashboard) { height: auto !important; overflow-y: auto !important; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -66,7 +67,10 @@ body {
   width: 100%;
   overscroll-behavior-y: none;
 }
-#root
+
+#root { height: 100%; }
+#root:has(.admin-dashboard) { height: auto !important; overflow-y: visible !important; }
+
 .app { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary) !important; }
 
 
@@ -972,14 +976,7 @@ div.input-container, .input-container, [class*="input-container"] {
    ADMIN DASHBOARD — SCROLL FIX (DESKTOP + MOBILE)
    ═══════════════════════════════════════════════════════════════ */
 
-/* Desktop: admin dashboard must scroll freely */
-.admin-dashboard {
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: auto;
-  min-height: 100vh;
-  overscroll-behavior-y: contain;
-}
+/* Admin dashboard desktop scroll handled by html/root :has() rules above */
 
 @media (max-width: 768px) {
   .admin-dashboard {
