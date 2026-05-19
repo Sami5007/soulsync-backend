@@ -1017,3 +1017,30 @@ body:has(.admin-dashboard),
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ✅ FINAL UNIFIED COMPONENT SCROLL FIX FOR PHONES
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* 1. Force chart wrapper overlays to pass touch inputs right through to the scroll container */
+  .recharts-responsive-container,
+  .recharts-wrapper,
+  .recharts-surface,
+  .recharts-legend-wrapper {
+    pointer-events: none !important;
+    touch-action: auto !important;
+  }
+
+  /* 2. Configure the table scroll wrapper to isolate horizontal swiping gestures */
+  .admin-table-wrapper {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x !important; /* Locks vertical swiping to prevent page freezes */
+  }
+
+  /* 3. Configure the dashboard body container to handle native touch inputs */
+  .admin-body {
+    touch-action: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
