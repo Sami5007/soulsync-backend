@@ -27,53 +27,42 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
     if (!VOICE_SUPPORTED) return;
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;        // ✅ keep listening across pauses
-    recognition.interimResults = true;    // show partials while speaking
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => setIsListening(true);
 
+    // ✅ FIX: Always iterate from 0 — event.results is a cumulative array.
+    // Iterating from event.resultIndex causes Android to re-process already
+    // finalized words during long sessions, doubling them in the buffer.
     recognition.onresult = (event) => {
-      let interimTranscript = '';
-      let newFinalText = '';
+      let finalText = '';
+      let interimText = '';
 
-      // Iterate only NEW results (from resultIndex onward)
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+      for (let i = 0; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript.trim();
         if (event.results[i].isFinal) {
-          newFinalText += ' ' + transcript;
+          finalText += (finalText ? ' ' : '') + transcript;
         } else {
-          interimTranscript += transcript;
+          interimText += transcript;
         }
       }
 
-      // Append only the NEW finalized text to the buffer
-      if (newFinalText.trim()) {
-        finalBufferRef.current = (
-          finalBufferRef.current + ' ' + newFinalText
-        )
-          .replace(/\s+/g, ' ')
-          .trim();
-      }
+      // Keep finalBufferRef in sync — still needed for session restart in onend
+      finalBufferRef.current = finalText;
 
-      // Compose: original prefix + finalized voice + current interim
+      // Compose: prefix (pre-voice typed text) + finals + current interim
       const prefix = prefixRef.current;
-      const finalVoice = finalBufferRef.current;
-      const interim = interimTranscript.trim();
-
       let combined = prefix;
-      if (finalVoice) {
-        combined = combined ? `${combined} ${finalVoice}` : finalVoice;
-      }
-      if (interim) {
-        combined = combined ? `${combined} ${interim}` : interim;
-      }
+      if (finalText) combined = combined ? `${combined} ${finalText}` : finalText;
+      if (interimText) combined = combined ? `${combined} ${interimText}` : interimText;
 
-      combined = combined.slice(0, MAX_CHARS);
+      combined = combined.replace(/\s+/g, ' ').trim().slice(0, MAX_CHARS);
       setMessage(combined);
 
-      // Auto-resize
+      // Auto-resize textarea
       if (textareaRef.current) {
         const el = textareaRef.current;
         el.style.height = 'auto';
@@ -101,32 +90,32 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
       setIsListening(false);
     };
 
-recognition.onend = () => {
-  if (!userStoppedRef.current) {
-    try {
-      // ✅ THE FIX: before restarting, promote accumulated voice
-      // text into the prefix and wipe the buffer clean.
-      // New session starts fresh — no old results to double.
-      const accumulated = [prefixRef.current, finalBufferRef.current]
-        .filter(Boolean)
-        .join(' ')
-        .trim();
-      prefixRef.current = accumulated;
-      finalBufferRef.current = '';   // ← reset so new session doesn't replay
+    // ✅ FIX: Before auto-restarting, promote finalBuffer into prefix
+    // and wipe the buffer — new session starts fresh with no old results
+    // to replay, preventing doubling on session boundary (~60s).
+    recognition.onend = () => {
+      if (!userStoppedRef.current) {
+        try {
+          const accumulated = [prefixRef.current, finalBufferRef.current]
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+          prefixRef.current = accumulated;
+          finalBufferRef.current = '';
 
-      recognition.start();
-      return;
-    } catch (err) {
-      console.warn('[VoiceInput] Auto-restart failed:', err);
-    }
-  }
+          recognition.start();
+          return;
+        } catch (err) {
+          console.warn('[VoiceInput] Auto-restart failed:', err);
+        }
+      }
 
-  // User stopped OR restart failed — end session cleanly
-  setIsListening(false);
-  finalBufferRef.current = '';
-  prefixRef.current = '';
-  userStoppedRef.current = false;
-};
+      // User stopped OR restart failed — end session cleanly
+      setIsListening(false);
+      finalBufferRef.current = '';
+      prefixRef.current = '';
+      userStoppedRef.current = false;
+    };
 
     recognitionRef.current = recognition;
 
