@@ -1,17 +1,15 @@
 /* ═══════════════════════════════════════════════
-   ADMIN DASHBOARD — Glass Aesthetic
+   ADMIN DASHBOARD — Corrected Scroll Frame
    ═══════════════════════════════════════════════ */
 .admin-dashboard {
-  min-height: 100vh;
-  height: auto;
+  height: 100vh;            /* Locks down full screen height */
+  width: 100vw;
+  display: flex;            /* Enables simple, static layout partitioning */
+  flex-direction: column;   /* Header on top, Body takes remaining space */
   background: radial-gradient(circle at 50% 0%, #1a2b4a 0%, #0a0f1e 70%);
   color: #f8fafc;
   font-family: 'Inter', sans-serif;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: auto;
-  touch-action: pan-y;
+  overflow: hidden;         /* Completely blocks the outer window from resetting scroll positions */
 }
 
 /* ─── HEADER ─── */
@@ -24,9 +22,21 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  position: sticky;
-  top: 0;
   z-index: 10;
+  flex-shrink: 0;          /* Keeps header safe from shrinking during layout computations */
+}
+
+/* ─── BODY (This handles all scrolling now) ─── */
+.admin-body {
+  flex: 1;                  /* Expand smoothly to fill everything below the header */
+  overflow-y: auto;         /* Locks all scroll state safely away from auto-refresh renders */
+  padding: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+  -webkit-overflow-scrolling: touch; /* Ensures smooth scrolling behavior across mobile browsers */
+  overscroll-behavior-y: contain;
 }
 
 .admin-header-left { display: flex; align-items: center; }
