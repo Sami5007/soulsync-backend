@@ -980,13 +980,17 @@ div.input-container, .input-container, [class*="input-container"] {
 
 @media (max-width: 768px) {
   .admin-dashboard {
-    height: auto !important;
-    min-height: 100dvh;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-  }
-
+  height: auto !important;
+  min-height: 100dvh;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y !important;
+}
+.admin-body {
+  padding-bottom: 4rem;
+  touch-action: pan-y !important;
+}
   .admin-body {
     padding-bottom: 4rem;
   }
