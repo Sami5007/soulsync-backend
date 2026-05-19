@@ -66,13 +66,24 @@ body {
   width: 100%;
   overscroll-behavior-y: none;
 }
-
 #root { height: 100%; }
+
+/* ── Admin route: unlock html/root/body height ── */
+html:has(.admin-dashboard) {
+  height: auto !important;
+  overflow-y: auto !important;
+}
 
 #root:has(.admin-dashboard) {
   height: auto !important;
   min-height: 100vh;
-  overflow: visible;
+  overflow-y: auto !important;
+}
+
+body:has(.admin-dashboard) {
+  height: auto !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
 }
 
 .app { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary) !important; }
