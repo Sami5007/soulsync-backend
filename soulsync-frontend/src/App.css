@@ -1010,11 +1010,16 @@ body {
   overflow: hidden;                  /* ← add */
   padding-bottom: 0px; 
 }
-  body, .app {
+  .app {
   width: 100%;
-  overflow: hidden;      /* ← change overflow-x to overflow */
-  height: 100dvh;        /* ← add */
-  max-height: 100dvh;    /* ← add */
+  overflow: hidden;
+  height: 100dvh;
+  max-height: 100dvh;
+}
+
+body {
+  width: 100%;
+  overflow-x: hidden;
 }
 .input-container { 
   position: relative;
@@ -1198,4 +1203,17 @@ div.input-container,
 /* Keeps the input area strictly at the bottom */
 .chat-input-area {
   flex-shrink: 0; 
+}
+/* ── Admin dashboard mobile scroll fix ── */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-body {
+    padding-bottom: 4rem;
+  }
 }
