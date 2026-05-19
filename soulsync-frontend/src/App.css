@@ -726,7 +726,6 @@ body {
 .conversation-item:hover .delete-session-btn { opacity: 1; }
 .delete-session-btn:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
 
-.message-input { color: var(--text-primary); }
 .message-input::placeholder { color: var(--text-tertiary); }
 
 
@@ -924,7 +923,7 @@ body {
 
 
 /* ═══════════════════════════════════════════════════════════════
-   CORE ENGINE WORKSPACE FIX
+   CORE ENGINE WORKSPACE FIX & TEXT INPUT ALIGNMENT
    ═══════════════════════════════════════════════════════════════ */
 div.sidebar, aside.sidebar, .sidebar, [class*="sidebar"] {
   background: #0a1628 !important;
@@ -939,9 +938,31 @@ div.input-container, .input-container, [class*="input-container"] {
   box-shadow: none !important;
 }
 
+/* 1. Added the Puff Fix and removed the scrollbar artifact */
 .message-input {
   background: transparent !important;
   color: #f8fafc !important;
+  min-height: 48px !important;
+  padding: 12px 16px !important;
+  line-height: 1.5 !important;
+  box-sizing: border-box !important;
+  max-height: 120px;
+  overflow-y: auto;
+  resize: none;
+}
+
+/* 2. Kills the cyan scrollbar specifically inside the text input */
+.message-input::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* 3. Ensures the mic and send buttons align perfectly with the text box */
+.chat-input-area form, 
+.input-container form,
+.chat-input-wrapper {
+  display: flex !important;
+  align-items: center !important; 
+  gap: 12px; 
 }
 
 
