@@ -580,3 +580,16 @@
   .admin-card { padding: 0.85rem 0.7rem; }
   .admin-card-header h2 { font-size: 0.82rem; }
 }
+/* ─── FIX: Mobile scroll ─── */
+.admin-dashboard {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  height: auto;
+  min-height: 100vh;
+}
+
+.admin-body {
+  overflow-y: visible;
+  padding-bottom: 3rem;
+}
