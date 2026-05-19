@@ -69,6 +69,12 @@ body {
 
 #root { height: 100%; }
 
+#root:has(.admin-dashboard) {
+  height: auto !important;
+  min-height: 100vh;
+  overflow: visible;
+}
+
 .app { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary) !important; }
 
 
