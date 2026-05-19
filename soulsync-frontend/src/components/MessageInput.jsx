@@ -17,6 +17,10 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
   // Voice session buffers
   const prefixRef = useRef('');         // text typed before voice started
   const finalBufferRef = useRef('');    // accumulated finalized speech this session
+  
+  // 🎤 MOBILE PWA DUP FIX: Track unique phrase tokens to prevent mobile duplicates
+  const mobileSeenPhrasesRef = useRef(new Set()); 
+  
   // Flag: did the user manually stop, or did browser auto-stop?
   const userStoppedRef = useRef(false);
 
@@ -27,33 +31,47 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
     if (!VOICE_SUPPORTED) return;
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
+    
+    // MOBILE PWA FIX: continuous = true breaks native Android UI layers.
+    // Changing this to false prevents the OS keyboard buffer from looping.
+    recognition.continuous = false; 
     recognition.interimResults = true;
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
-    recognition.onstart = () => setIsListening(true);
+    recognition.onstart = () => {
+      setIsListening(true);
+      mobileSeenPhrasesRef.current.clear(); // Fresh session, clear dup trackers
+    };
 
-    // ✅ FIX: Always iterate from 0 — event.results is a cumulative array.
-    // Iterating from event.resultIndex causes Android to re-process already
-    // finalized words during long sessions, doubling them in the buffer.
+    // 🎯 FIXED MOBILE EVENT HANDLING LOGIC
     recognition.onresult = (event) => {
-      let finalText = '';
+      let finalText = finalBufferRef.current; // Build on top of what we already saved
       let interimText = '';
 
-      for (let i = 0; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript.trim();
-        if (event.results[i].isFinal) {
-          finalText += (finalText ? ' ' : '') + transcript;
-        } else {
-          interimText += transcript;
+      // Loop only from the latest results index to prevent reading old Android array indexes
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const resultItem = event.results[i];
+        const transcript = resultItem[0].transcript.trim();
+
+        // MOBILE FIX: Filter out 0-confidence ghost streams sent by Android Chrome
+        const isValidMobileFinal = resultItem.isFinal && resultItem[0].confidence > 0;
+
+        if (isValidMobileFinal) {
+          // MOBILE FIX: Deduplicate text matching tokens using our Set
+          if (!mobileSeenPhrasesRef.current.has(transcript)) {
+            mobileSeenPhrasesRef.current.add(transcript);
+            finalText = finalText ? `${finalText} ${transcript}` : transcript;
+          }
+        } else if (!resultItem.isFinal) {
+          interimText = transcript;
         }
       }
 
-      // Keep finalBufferRef in sync — still needed for session restart in onend
+      // Keep finalBufferRef in sync
       finalBufferRef.current = finalText;
 
-      // Compose: prefix (pre-voice typed text) + finals + current interim
+      // Compose string outputs safely
       const prefix = prefixRef.current;
       let combined = prefix;
       if (finalText) combined = combined ? `${combined} ${finalText}` : finalText;
@@ -72,11 +90,7 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
 
     recognition.onerror = (event) => {
       console.error('[VoiceInput] Error:', event.error);
-
-      // 'no-speech' and 'aborted' are normal — don't kill the session
-      if (event.error === 'no-speech' || event.error === 'aborted') {
-        return;
-      }
+      if (event.error === 'no-speech' || event.error === 'aborted') return;
 
       if (event.error === 'not-allowed') {
         alert('Microphone permission denied. Please enable it in your browser settings.');
@@ -85,15 +99,15 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
         return;
       }
 
-      // Other errors — stop cleanly
       userStoppedRef.current = true;
       setIsListening(false);
     };
 
-    // ✅ FIX: Before auto-restarting, promote finalBuffer into prefix
-    // and wipe the buffer — new session starts fresh with no old results
-    // to replay, preventing doubling on session boundary (~60s).
+    // 🔄 MOBILE PWA AUTO-RESTART LOGIC
     recognition.onend = () => {
+      // Clear token lookup index for the next sound check burst
+      mobileSeenPhrasesRef.current.clear();
+
       if (!userStoppedRef.current) {
         try {
           const accumulated = [prefixRef.current, finalBufferRef.current]
@@ -101,7 +115,7 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
             .join(' ')
             .trim();
           prefixRef.current = accumulated;
-          finalBufferRef.current = '';
+          // Notice: Keep finalBufferRef populated so it persists across rapid restarts
 
           recognition.start();
           return;
@@ -110,7 +124,7 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
         }
       }
 
-      // User stopped OR restart failed — end session cleanly
+      // Complete reset upon manual stop
       setIsListening(false);
       finalBufferRef.current = '';
       prefixRef.current = '';
@@ -139,7 +153,6 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
     }
 
     if (isListening) {
-      // User wants to stop — set flag BEFORE calling stop()
       userStoppedRef.current = true;
       try {
         recognitionRef.current.stop();
@@ -147,10 +160,10 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
         console.warn('[VoiceInput] Stop error:', err);
       }
     } else {
-      // Starting fresh — snapshot what's typed and reset flags
       const current = message.trim();
       prefixRef.current = current;
       finalBufferRef.current = '';
+      mobileSeenPhrasesRef.current.clear();
       userStoppedRef.current = false;
 
       try {
@@ -223,7 +236,6 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
         )}
       </div>
 
-      {/* ─── VOICE INPUT BUTTON ─── */}
       {VOICE_SUPPORTED && (
         <button
           type="button"
@@ -261,62 +273,12 @@ export const MessageInput = ({ onSendMessage, disabled }) => {
             }
           }}
         >
-          {isListening ? (
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="9" y="2" width="6" height="13" rx="3" fill="currentColor" />
-              <path d="M19 10a7 7 0 01-14 0" />
-              <line x1="12" y1="19" x2="12" y2="22" />
-              <line x1="8" y1="22" x2="16" y2="22" />
-            </svg>
-          ) : (
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="9" y="2" width="6" height="13" rx="3" />
-              <path d="M19 10a7 7 0 01-14 0" />
-              <line x1="12" y1="19" x2="12" y2="22" />
-              <line x1="8" y1="22" x2="16" y2="22" />
-            </svg>
-          )}
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+          </svg>
         </button>
       )}
-
-      {/* ─── SEND BUTTON ─── */}
-      <button
-        className="send-button"
-        onClick={handleSubmit}
-        disabled={!message.trim() || disabled}
-      >
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
     </div>
   );
 };
